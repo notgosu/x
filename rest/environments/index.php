@@ -37,4 +37,18 @@ return [
             'backend/config/main-local.php',
         ],
     ],
+	'Production' => [
+		'path' => 'prod',
+		'setWritable' => [
+			'backend/runtime',
+			'backend/web/assets',
+			'rest/runtime',
+		],
+		'setExecutable' => [
+			'yii',
+		],
+		'setCookieValidationKey' => [
+			'backend/config/main-local.php',
+		],
+	],
 ];
