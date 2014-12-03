@@ -108,6 +108,12 @@ class Project extends BackModel
 			? [
 				'id',
 				'name',
+				[
+					'attribute' => 'company_id',
+					'value' => $this->getCompany()->one()->name
+				],
+				'short_info',
+				'show_in_sidebar:boolean',
 			]
 			: [
 				'id',

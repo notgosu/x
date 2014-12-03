@@ -101,6 +101,10 @@ class Company extends BackModel
 		}
 	}
 
+	public function getEmployee(){
+		return $this->hasOne(Employee::className(), ['id' => 'employee_id']);
+	}
+
 
 	/**
      * @inheritdoc
@@ -247,18 +251,29 @@ class Company extends BackModel
 		return $viewAction
 			? [
 				'name',
-				'photo_id',
 				'critical_info_price',
 				'market_info_price',
-				'emails',
-				'phones',
+				[
+					'attribute' => 'emails',
+					'value' => implode(', ', $this->emails),
+				],
+				[
+					'attribute' => 'phones',
+					'value' => implode(', ', $this->phones),
+				],
 				'site',
-				'messengers',
+				[
+					'attribute' => 'messengers',
+					'value' => implode(', ', $this->messengers),
+				],
 				'address',
 				'juristic_address',
 				'bank_requisites',
 				'comment',
-				'employee_id',
+				[
+					'attribute' => 'employee_id',
+					'value' => $this->employee_id ? $this->getEmployee()->one()->name : null,
+				]
 			]
 			: [
 				'id',

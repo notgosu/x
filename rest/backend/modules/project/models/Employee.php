@@ -234,6 +234,32 @@ class Employee extends BackModel
 			? [
 				'id',
 				'name',
+				[
+					'attribute' => 'company_id',
+					'value' => $this->getCompany()->one()->name
+				],
+				'post',
+				[
+					'attribute' => 'psycho_type_id',
+					'value' => $this->getPsychoType()->one()->name
+				],
+				'motivation',
+				'addition_resources',
+				[
+					'attribute' => 'emails',
+					'value' => implode(', ', $this->emails),
+				],
+				[
+					'attribute' => 'phones',
+					'value' => implode(', ', $this->phones),
+				],
+				'site',
+				[
+					'attribute' => 'messengers',
+					'value' => implode(', ', $this->messengers),
+				],
+				'address',
+				'comment',
 			]
 			: [
 				'id',

@@ -71,6 +71,7 @@ class EmployeePsychoType extends BackModel
 			? [
 				'id',
 				'name',
+				'value',
 				'position'
 			]
 			: [
