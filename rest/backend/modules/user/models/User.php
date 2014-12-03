@@ -430,6 +430,6 @@ class User extends BackModel
 	 */
 	public function getBreadCrumbRoot()
 	{
-		return 'Пользователи';
+		return 'Користувачi';
 	}
 }
