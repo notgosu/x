@@ -14,7 +14,9 @@ class m141201_210804_add_category_attribute_value_table extends Migration
 			    'company_id' => Schema::TYPE_INTEGER.' NOT NULL',
 			    'category_id' => Schema::TYPE_INTEGER.' NOT NULL',
 			    'attribute_id' => Schema::TYPE_INTEGER.' NOT NULL',
-		    ]);
+		    ],
+		    'CHARACTER SET utf8 COLLATE utf8_general_ci ENGINE=InnoDB'
+	    );
 
 
 	    $this->addForeignKey(

@@ -25,7 +25,9 @@ class m141127_214935_create_company_table extends Migration
 			    'comment' => Schema::TYPE_TEXT. ' NOT NULL',
 			    'project_id' => Schema::TYPE_INTEGER. ' NOT NULL',
 			    'employee_id' => Schema::TYPE_INTEGER. ' NOT NULL',
-		    ]);
+		    ],
+		    'CHARACTER SET utf8 COLLATE utf8_general_ci ENGINE=InnoDB'
+	    );
 
 	    $this->addForeignKey('fk_company_project_id_to_user_table_id', $this->tableName, 'project_id', 'project', 'id', 'CASCADE');
 

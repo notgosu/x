@@ -22,7 +22,9 @@ class m141118_211452_add_user_prefs_table extends Migration
 			    'phones' => Schema::TYPE_TEXT . ' NOT NULL',
 			    'skype' => Schema::TYPE_STRING . ' NOT NULL',
 			    'site' => Schema::TYPE_STRING . ' NOT NULL',
-		    ]);
+		    ],
+		    'CHARACTER SET utf8 COLLATE utf8_general_ci ENGINE=InnoDB'
+	    );
 
 	    $this->addForeignKey('fk_user_prefs_user_id_to_user_table_id', $this->tableName, 'user_id', 'user', 'id', 'CASCADE');
     }

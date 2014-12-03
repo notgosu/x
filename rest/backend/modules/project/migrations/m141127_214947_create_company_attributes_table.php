@@ -14,7 +14,9 @@ class m141127_214947_create_company_attributes_table extends Migration
 			    'id' => 'pk',
 			    'name' => Schema::TYPE_STRING. ' NOT NULL',
 			    'position' => Schema::TYPE_INTEGER. ' NOT NULL DEFAULT 0',
-		    ]);
+		    ],
+		    'CHARACTER SET utf8 COLLATE utf8_general_ci ENGINE=InnoDB'
+	    );
 
 	    $this->createTable($this->tableName2, [
 			    'id' => 'pk',
@@ -22,7 +24,9 @@ class m141127_214947_create_company_attributes_table extends Migration
 			    'category_id' => Schema::TYPE_INTEGER. ' NOT NULL',
 			    'value' => Schema::TYPE_DECIMAL. '(7,2) NOT NULL',
 			    'position' => Schema::TYPE_INTEGER. ' NOT NULL DEFAULT 0',
-		    ]);
+		    ],
+		    'CHARACTER SET utf8 COLLATE utf8_general_ci ENGINE=InnoDB'
+	    );
 
 	    $this->addForeignKey(
 		    'fk_comp_attr_company_id_to_comp_attr_cat_table_id',

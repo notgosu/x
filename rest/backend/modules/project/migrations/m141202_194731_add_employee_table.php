@@ -17,6 +17,8 @@ class m141202_194731_add_employee_table extends Migration
 			    'value' => Schema::TYPE_DECIMAL. '(6,2) NOT NULL COMMENT "Значення"',
 			    'position' => Schema::TYPE_INTEGER. ' NOT NULL COMMENT "Порядок" DEFAULT 0',
 		    ]
+		    ,
+		    'CHARACTER SET utf8 COLLATE utf8_general_ci ENGINE=InnoDB'
 	    );
 
 		$this->createTable($this->tableName2, [
@@ -34,7 +36,9 @@ class m141202_194731_add_employee_table extends Migration
 				'address' => Schema::TYPE_STRING. ' NOT NULL COMMENT "Контактна адреса"',
 				'comment' => Schema::TYPE_TEXT. ' NOT NULL COMMENT "Коментарі"',
 
-			]);
+			],
+			'CHARACTER SET utf8 COLLATE utf8_general_ci ENGINE=InnoDB'
+		);
 
 	    $this->createTable($this->tableName3,[
 			    'id' => 'pk',
