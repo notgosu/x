@@ -65,6 +65,7 @@ class EmployeeAccessType extends \backend\components\BackModel
 			: [
 				'id',
 				'name',
+				'value',
 				'position',
 				[
 					'class' => \yii\grid\ActionColumn::className()
