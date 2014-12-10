@@ -105,7 +105,9 @@ class ObjectEmployeeParams extends \backend\components\BackModel
 				$model = new self();
 				$model->employee_id = $employee->id;
 				$model->object_id = $objectId;
-				$model->access_type_id = $accessType->id;
+				if ($accessType){
+					$model->access_type_id = $accessType->id;
+				}
 				$model->temp_sign = $tempSign;
 				$model->save(false);
 			}
