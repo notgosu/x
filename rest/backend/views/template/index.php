@@ -16,7 +16,7 @@ $this->params['breadcrumbs'] = [$searchModel->getBreadCrumbRoot()];
 	<div class="panel-body">
 		<?php
 
-		echo \yii\helpers\Html::a('Створити', ['create'], ['class' => 'pull-left btn btn-success']);
+		echo \yii\helpers\Html::a('Створити', ['create'], ['class' => 'pull-left bottom-margin btn btn-success']);
 		echo \yii\helpers\Html::tag('div', '', ['class' => 'clearfix']);
 
 		echo \yii\grid\GridView::widget(
