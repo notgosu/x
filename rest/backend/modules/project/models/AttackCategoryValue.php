@@ -4,23 +4,27 @@ namespace backend\modules\project\models;
 
 use kartik\builder\Form;
 use Yii;
+use yii\helpers\ArrayHelper;
 
 /**
- * This is the model class for table "employee_access_type".
+ * This is the model class for table "attack_category_value".
  *
  * @property integer $id
  * @property string $name
- * @property float $value
+ * @property integer $category_id
+ * @property string $value
  * @property integer $position
+ *
+ * @property AttackCategory $category
  */
-class EmployeeAccessType extends \backend\components\BackModel
+class AttackCategoryValue extends \backend\components\BackModel
 {
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'employee_access_type';
+        return 'attack_category_value';
     }
 
     /**
@@ -29,8 +33,9 @@ class EmployeeAccessType extends \backend\components\BackModel
     public function rules()
     {
         return [
-            [['name', 'value'], 'required'],
-            [['position'], 'integer'],
+            [['name', 'category_id', 'value'], 'required'],
+            [['category_id', 'position'], 'integer'],
+            [['value'], 'number'],
             [['name'], 'string', 'max' => 255]
         ];
     }
@@ -43,9 +48,18 @@ class EmployeeAccessType extends \backend\components\BackModel
         return [
             'id' => 'ID',
             'name' => 'Назва',
-	        'value' => 'Значення',
+            'category_id' => 'Категорія',
+            'value' => 'Значення',
             'position' => 'Порядок',
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCategory()
+    {
+        return $this->hasOne(AttackCategory::className(), ['id' => 'category_id']);
     }
 
 	/**
@@ -59,12 +73,24 @@ class EmployeeAccessType extends \backend\components\BackModel
 			? [
 				'id',
 				'name',
+				[
+					'attribute' => 'category_id',
+					'value' => $this->getCategory()->one()->name
+				],
 				'value',
 				'position'
 			]
 			: [
 				'id',
 				'name',
+				[
+					'attribute' => 'category_id',
+					'filter' => ArrayHelper::map(AttackCategory::find()->all(), 'id', 'name'),
+					'value' => function (self $data) {
+							return $data->getCategory()->one()->name;
+						}
+				],
+				'value',
 				'position',
 				[
 					'class' => \yii\grid\ActionColumn::className()
@@ -82,6 +108,10 @@ class EmployeeAccessType extends \backend\components\BackModel
 				'name' => [
 					'type' => Form::INPUT_TEXT,
 				],
+				'category_id' => [
+					'type' => Form::INPUT_DROPDOWN_LIST,
+					'items' => ArrayHelper::map(AttackCategory::find()->all(), 'id', 'name')
+				],
 				'value' => [
 					'type' => Form::INPUT_TEXT,
 				],
@@ -97,6 +127,6 @@ class EmployeeAccessType extends \backend\components\BackModel
 	 */
 	public function getBreadCrumbRoot()
 	{
-		return 'Типи доступу співробітників';
+		return 'Значення категорій атак';
 	}
 }

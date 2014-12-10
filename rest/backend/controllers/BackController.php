@@ -16,6 +16,7 @@ use yii\web\NotFoundHttpException;
 
 /**
  * Class BackController
+ *
  * @package backend\controllers
  */
 class BackController extends Controller
@@ -23,7 +24,8 @@ class BackController extends Controller
 	/**
 	 * @return array
 	 */
-	public function behaviors(){
+	public function behaviors()
+	{
 		return [
 			'access' => [
 				'class' => AccessControl::className(),
@@ -34,7 +36,7 @@ class BackController extends Controller
 					],
 					[
 						'allow' => true,
-						'matchCallback' => function($rule, $action){
+						'matchCallback' => function ($rule, $action) {
 								return !\Yii::$app->user->isGuest &&
 								\Yii::$app->user->identity->role == User::ROLE_ADMIN;
 							}
@@ -48,27 +50,33 @@ class BackController extends Controller
 	 * @return \backend\components\BackModel
 	 * @throws \yii\base\Exception
 	 */
-	public function getModel(){
+	public function getModel()
+	{
 		throw new Exception(500, 'Need to implement "getModel" method');
 	}
 
 	/**
 	 * @return string
 	 */
-	public function actionIndex(){
+	public function actionIndex()
+	{
 		$class = $this->getModel();
 
 		/**
 		 * @var $model \backend\components\BackModel
 		 */
 		$model = new $class();
+		$model->unsetAttributes();
 
 		$dataProvider = $model->search(\Yii::$app->request->queryParams);
 
-		return $this->render('//template/index', [
+		return $this->render(
+			'//template/index',
+			[
 				'searchModel' => $model,
 				'dataProvider' => $dataProvider,
-			]);
+			]
+		);
 	}
 
 	/**
@@ -86,9 +94,12 @@ class BackController extends Controller
 		if ($model->load(\Yii::$app->request->post()) && $model->save()) {
 			return $this->redirect(['index']);
 		} else {
-			return $this->render('//template/create', [
+			return $this->render(
+				'//template/create',
+				[
 					'model' => $model,
-				]);
+				]
+			);
 		}
 	}
 
@@ -106,6 +117,7 @@ class BackController extends Controller
 		$transaction = \Yii::$app->db->beginTransaction();
 		try {
 			$isSaved = $model->load(\Yii::$app->request->post()) && $model->save();
+//			print_r($_POST);exit;
 			$transaction->commit();
 		} catch (Exception $e) {
 			$transaction->rollBack();
@@ -114,9 +126,12 @@ class BackController extends Controller
 		if ($isSaved) {
 			return $this->redirect(['index']);
 		} else {
-			return $this->render('//template/update', [
+			return $this->render(
+				'//template/update',
+				[
 					'model' => $model,
-				]);
+				]
+			);
 		}
 	}
 
@@ -126,7 +141,8 @@ class BackController extends Controller
 	 *
 	 * @return string
 	 */
-	public function actionView($id){
+	public function actionView($id)
+	{
 		$model = $this->loadModel($id);
 
 		return $this->render(
@@ -142,10 +158,11 @@ class BackController extends Controller
 	 *
 	 * @throws \yii\base\ErrorException
 	 */
-	public function actionDelete($id){
+	public function actionDelete($id)
+	{
 		$model = $this->loadModel($id);
 
-		if (!$model->delete()){
+		if (!$model->delete()) {
 			throw new ErrorException;
 		}
 
@@ -158,7 +175,8 @@ class BackController extends Controller
 	 * @return \backend\components\BackModel
 	 * @throws \yii\web\NotFoundHttpException
 	 */
-	public function loadModel($id){
+	public function loadModel($id)
+	{
 		$class = $this->getModel();
 		/**
 		 * @var $model \backend\components\BackModel
@@ -166,10 +184,9 @@ class BackController extends Controller
 		$model = new $class();
 		$model = $model->findOne(['id' => (int)$id]);
 
-		if ($model){
+		if ($model) {
 			return $model;
-		}
-		else{
+		} else {
 			throw new NotFoundHttpException;
 		}
 	}

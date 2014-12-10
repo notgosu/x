@@ -53,6 +53,21 @@ AppAsset::register($this);
 					['label' => 'Типи доступу співробітників', 'url' => ['/project/employee-access-type/index']],
 				]
 			],
+			[
+				'label' => 'Об\'єкт',
+				'items' => [
+					['label' => 'Об\'єкт', 'url' => ['/project/object/index']],
+					['label' => 'Тип об\'єкту', 'url' => ['/project/object-type/index']],
+				],
+			],
+			[
+				'label' => 'Атаки',
+				'items' => [
+					['label' => 'Атаки', 'url' => ['/project/attack/index']],
+					['label' => 'Категорії атак', 'url' => ['/project/attack-category/index']],
+					['label' => 'Значення категорій атак', 'url' => ['/project/attack-category-value/index']],
+				]
+			],
 			['label' => 'Користувач', 'url' => ['/user/default/index']],
 
 		];

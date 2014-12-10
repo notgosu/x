@@ -6,21 +6,22 @@ use kartik\builder\Form;
 use Yii;
 
 /**
- * This is the model class for table "employee_access_type".
+ * This is the model class for table "object_type".
  *
  * @property integer $id
  * @property string $name
- * @property float $value
  * @property integer $position
+ *
+ * @property Object[] $objects
  */
-class EmployeeAccessType extends \backend\components\BackModel
+class ObjectType extends \backend\components\BackModel
 {
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'employee_access_type';
+        return 'object_type';
     }
 
     /**
@@ -29,7 +30,7 @@ class EmployeeAccessType extends \backend\components\BackModel
     public function rules()
     {
         return [
-            [['name', 'value'], 'required'],
+            [['name'], 'required'],
             [['position'], 'integer'],
             [['name'], 'string', 'max' => 255]
         ];
@@ -43,9 +44,16 @@ class EmployeeAccessType extends \backend\components\BackModel
         return [
             'id' => 'ID',
             'name' => 'Назва',
-	        'value' => 'Значення',
             'position' => 'Порядок',
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getObjects()
+    {
+        return $this->hasMany(Object::className(), ['object_type_id' => 'id']);
     }
 
 	/**
@@ -59,7 +67,6 @@ class EmployeeAccessType extends \backend\components\BackModel
 			? [
 				'id',
 				'name',
-				'value',
 				'position'
 			]
 			: [
@@ -82,9 +89,6 @@ class EmployeeAccessType extends \backend\components\BackModel
 				'name' => [
 					'type' => Form::INPUT_TEXT,
 				],
-				'value' => [
-					'type' => Form::INPUT_TEXT,
-				],
 				'position' => [
 					'type' => Form::INPUT_TEXT,
 				],
@@ -97,6 +101,6 @@ class EmployeeAccessType extends \backend\components\BackModel
 	 */
 	public function getBreadCrumbRoot()
 	{
-		return 'Типи доступу співробітників';
+		return 'Тип об\'єкту';
 	}
 }

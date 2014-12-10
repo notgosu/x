@@ -16,6 +16,7 @@ use yii\widgets\MaskedInput;
  *
  * @property integer $id
  * @property string $username
+ * @property string $name
  * @property string $auth_key
  * @property string $password_hash
  * @property string $password_reset_token
@@ -174,7 +175,7 @@ class User extends BackModel
 	{
 		return [
 			[
-				['username', 'birthday', 'city', 'sex', 'skype', 'site', 'company', 'appointment', 'email'],
+				['username', 'name', 'birthday', 'city', 'sex', 'skype', 'site', 'company', 'appointment', 'email'],
 				'required'
 			],
 			[['role', 'status', 'created_at', 'updated_at'], 'integer'],
@@ -219,7 +220,8 @@ class User extends BackModel
 	{
 		return [
 			'id' => 'ID',
-			'username' => 'Повне iм\'я',
+			'name' => 'Повне iм\'я',
+			'username' => 'Логiн',
 			'auth_key' => 'Auth Key',
 			'password_hash' => 'Password Hash',
 			'password_reset_token' => 'Password Reset Token',
@@ -344,9 +346,13 @@ class User extends BackModel
 	{
 		return
 			[
-				'username' => [
+				'name' => [
 					'type' => Form::INPUT_TEXT,
 					'options' => ['placeholder' => 'Повне iм`я']
+				],
+				'username' => [
+					'type' => Form::INPUT_TEXT,
+					'options' => ['placeholder' => 'Логiн']
 				],
 				'birthday' => [
 					'type' => Form::INPUT_WIDGET,

@@ -19,6 +19,19 @@ use yii\widgets\MaskedInput;
 class BackModel extends ActiveRecord
 {
 	/**
+	 * @param null $names
+	 */
+	public function unsetAttributes($names = null)
+	{
+		if ($names === null) {
+			$names = $this->attributes();
+		}
+		foreach ($names as $name) {
+			$this->$name = null;
+		}
+	}
+
+	/**
 	 * @param $params
 	 *
 	 * @return ActiveDataProvider

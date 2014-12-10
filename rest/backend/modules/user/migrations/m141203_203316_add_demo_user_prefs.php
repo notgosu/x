@@ -24,8 +24,6 @@ class m141203_203316_add_demo_user_prefs extends Migration
 
 	public function down()
 	{
-		echo "m141203_203316_add_demo_user_prefs cannot be reverted.\n";
-
-		return false;
+		return true;
 	}
 }

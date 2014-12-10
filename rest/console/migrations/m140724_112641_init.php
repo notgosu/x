@@ -30,10 +30,11 @@ class m140724_112641_init extends Migration
         );
 
         $user = new \common\models\User();
+	    $user->role = \common\models\User::ROLE_ADMIN;
         $user->username = 'demo';
         $user->generateAuthKey();
         $user->setPassword('demo');
-        return $user->insert();
+        return $user->insert(false);
     }
 
     public function down()

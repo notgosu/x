@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c6d83422fae29c29ccaf8075d672c01e",
+    "hash": "36d6ff3c0f454c65f95c31af33ae8917",
     "packages": [
         {
             "name": "bower-asset/bootstrap",
@@ -266,6 +266,46 @@
                 "markdown-extra"
             ],
             "time": "2014-11-07 12:53:11"
+        },
+        {
+            "name": "dmstr/yii2-migrate-command",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dmstr/yii2-migrate-command.git",
+                "reference": "fb5090e747902e594dc910e3264495b11349b699"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dmstr/yii2-migrate-command/zipball/fb5090e747902e594dc910e3264495b11349b699",
+                "reference": "fb5090e747902e594dc910e3264495b11349b699",
+                "shasum": ""
+            },
+            "type": "yii2-extension",
+            "autoload": {
+                "psr-4": {
+                    "dmstr\\console\\controllers\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Tobias Munk",
+                    "email": "tobias@diemeisterei.de"
+                }
+            ],
+            "description": "Console Migration Command with multiple paths/aliases support",
+            "keywords": [
+                "command",
+                "console",
+                "extension",
+                "migration",
+                "yii2"
+            ],
+            "time": "2014-11-19 13:24:06"
         },
         {
             "name": "ezyang/htmlpurifier",
@@ -544,6 +584,52 @@
                 "yii2"
             ],
             "time": "2014-11-09 18:53:34"
+        },
+        {
+            "name": "voskobovich/yii2-many-many-behavior",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://bitbucket.org/voskobovich/yii2-many-many-behavior.git",
+                "reference": "800e4cd7da77be9b9b8b1705ee45bbcf715150f2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://bitbucket.org/voskobovich/yii2-many-many-behavior/get/800e4cd7da77be9b9b8b1705ee45bbcf715150f2.zip",
+                "reference": "800e4cd7da77be9b9b8b1705ee45bbcf715150f2",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0",
+                "yiisoft/yii2": "*"
+            },
+            "type": "yii2-behavior",
+            "autoload": {
+                "psr-4": {
+                    "voskobovich\\behaviors\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Vitaly Voskobovich",
+                    "email": "vitaly@voskobovich.com",
+                    "homepage": "http://voskobovich.com"
+                }
+            ],
+            "description": "This behavior makes it easy to maintain relations many-to-many in the your ActiveRecord model.",
+            "homepage": "https://bitbucket.org/voskobovich/yii2-many-many-behavior",
+            "keywords": [
+                "Active Record",
+                "Behavior",
+                "many-to-many",
+                "relation",
+                "yii2"
+            ],
+            "time": "2014-11-30 15:39:43"
         },
         {
             "name": "yiisoft/yii2",
