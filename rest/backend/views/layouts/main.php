@@ -94,6 +94,7 @@ AppAsset::register($this);
 	}
 	echo Nav::widget(
 		[
+			'activateParents' => true,
 			'options' => ['class' => 'navbar-nav'],
 			'items' => $menuItems,
 		]
