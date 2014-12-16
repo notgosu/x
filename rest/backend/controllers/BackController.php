@@ -66,6 +66,7 @@ class BackController extends Controller
 		 * @var $model \backend\components\BackModel
 		 */
 		$model = new $class();
+		$model->setScenario('search');
 		$model->unsetAttributes();
 
 		$dataProvider = $model->search(\Yii::$app->request->queryParams);

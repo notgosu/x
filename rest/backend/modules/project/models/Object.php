@@ -6,6 +6,7 @@ use backend\modules\project\widgets\objectAttacks\ObjectAttacksWidget;
 use backend\modules\project\widgets\objectEmployee\ObjectEmployeeWidget;
 use kartik\builder\Form;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -78,7 +79,9 @@ class Object extends \backend\components\BackModel
 			['info_amount', 'in', 'range' => range(1, 100)],
 			['employees', 'validateEmployees'],
 			['attacks', 'validateAttacks'],
-			[['tempSign'], 'safe']
+			[['tempSign'], 'safe'],
+			[['id', 'name', 'company_id', 'object_type_id', 'info_amount'], 'safe', 'on' => 'search']
+
 		];
 	}
 
@@ -252,6 +255,29 @@ class Object extends \backend\components\BackModel
 
 			$model->save(false);
 		}
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function search($params)
+	{
+		$query = static::find();
+		$dataProvider = new ActiveDataProvider([
+			'query' => $query,
+		]);
+
+		if (!empty($params)){
+			$this->load($params);
+		}
+
+		$query->andFilterWhere(['id' => $this->id]);
+		$query->andFilterWhere(['company_id' => $this->company_id]);
+		$query->andFilterWhere(['object_type_id' => $this->object_type_id]);
+		$query->andFilterWhere(['like', 'name', $this->name]);
+		$query->andFilterWhere(['like', 'info_amount', $this->info_amount]);
+
+		return $dataProvider;
 	}
 
 	/**

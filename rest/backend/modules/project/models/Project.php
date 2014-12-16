@@ -43,7 +43,8 @@ class Project extends BackModel
             [['short_info'], 'string'],
             [['name'], 'string', 'max' => 255],
 	        ['logo_id', 'default', 'value' => 0],
-	        ['user_id', 'default', 'value' => Yii::$app->getUser()->getId()]
+	        ['user_id', 'default', 'value' => Yii::$app->getUser()->getId()],
+	        [['id', 'name', 'company_id', 'short_info', 'show_in_sidebar'], 'safe', 'on' => 'search']
         ];
     }
 
@@ -82,9 +83,7 @@ class Project extends BackModel
 	}
 
 	/**
-	 * @param $params
-	 *
-	 * @return ActiveDataProvider
+	 * @inheritdoc
 	 */
 	public function search($params)
 	{
@@ -92,6 +91,16 @@ class Project extends BackModel
 		$dataProvider = new ActiveDataProvider([
 			'query' => $query,
 		]);
+
+		if (!empty($params)){
+			$this->load($params);
+		}
+
+		$query->andFilterWhere(['id' => $this->id]);
+		$query->andFilterWhere(['company_id' => $this->company_id]);
+		$query->andFilterWhere(['like', 'name', $this->name]);
+		$query->andFilterWhere(['like', 'short_info', $this->short_info]);
+		$query->andFilterWhere(['show_in_sidebar' => $this->show_in_sidebar]);
 
 		return $dataProvider;
 	}
@@ -113,7 +122,7 @@ class Project extends BackModel
 					'value' => $this->getCompany()->one()->name
 				],
 				'short_info',
-				'show_in_sidebar:boolean',
+				'show_in_sidebar:boolean'
 			]
 			: [
 				'id',
@@ -125,7 +134,13 @@ class Project extends BackModel
 							return $data->getCompany()->one()->name;
 						}
 				],
-				'show_in_sidebar:boolean',
+				[
+					'attribute' => 'show_in_sidebar',
+					'filter' => ['Hi', 'Так'],
+					'value'=>function($model,$key,$index,$widget) {
+							return ($model->show_in_sidebar == null) ? 'Hi': 'Так';
+						},
+				],
 
 				[
 					'class' => \yii\grid\ActionColumn::className()

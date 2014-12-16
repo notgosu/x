@@ -35,7 +35,9 @@ class CompanyAttributeCategory extends BackModel
             [['name', 'position'], 'required'],
             [['position'], 'integer'],
 	        ['position', 'default', 'value' => 0],
-            [['name'], 'string', 'max' => 255]
+            [['name'], 'string', 'max' => 255],
+	        [['id', 'name', 'position'], 'safe', 'on' => 'search']
+
         ];
     }
 
@@ -59,12 +61,23 @@ class CompanyAttributeCategory extends BackModel
         return $this->hasMany(CompanyAttribute::className(), ['category_id' => 'id']);
     }
 
+	/**
+	 * @inheritdoc
+	 */
 	public function search($params)
 	{
 		$query = static::find();
 		$dataProvider = new ActiveDataProvider([
 			'query' => $query,
 		]);
+
+		if (!empty($params)){
+			$this->load($params);
+		}
+
+		$query->andFilterWhere(['id' => $this->id]);
+		$query->andFilterWhere(['like', 'name', $this->name]);
+		$query->andFilterWhere(['like', 'position', $this->position]);
 
 		return $dataProvider;
 	}

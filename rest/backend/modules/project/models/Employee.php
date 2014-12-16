@@ -5,6 +5,7 @@ namespace backend\modules\project\models;
 use backend\components\BackModel;
 use kartik\builder\Form;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\helpers\ArrayHelper;
 use yii\validators\EmailValidator;
 
@@ -96,7 +97,8 @@ class Employee extends BackModel
 	        ['phones', 'checkPhones'],
 	        ['emails', 'checkEmails'],
 	        ['messengers', 'checkMessengers'],
-            [['post', 'site', 'address'], 'string', 'max' => 255]
+            [['post', 'site', 'address'], 'string', 'max' => 255],
+	        [['id', 'name', 'company_id', 'post', 'psycho_type_id', 'motivation'], 'safe', 'on' => 'search']
         ];
     }
 
@@ -183,6 +185,30 @@ class Employee extends BackModel
 
 		return true;
 
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function search($params)
+	{
+		$query = static::find();
+		$dataProvider = new ActiveDataProvider([
+			'query' => $query,
+		]);
+
+		if (!empty($params)){
+			$this->load($params);
+		}
+
+		$query->andFilterWhere(['id' => $this->id]);
+		$query->andFilterWhere(['company_id' => $this->company_id]);
+		$query->andFilterWhere(['psycho_type_id' => $this->psycho_type_id]);
+		$query->andFilterWhere(['like', 'name', $this->name]);
+		$query->andFilterWhere(['like', 'post', $this->post]);
+		$query->andFilterWhere(['like', 'motivation', $this->motivation]);
+
+		return $dataProvider;
 	}
 
     /**

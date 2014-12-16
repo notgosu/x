@@ -187,7 +187,7 @@ class User extends BackModel
 			['new_password', 'string', 'length' => [6]],
 			['avatar_id', 'default', 'value' => 0],
 			['short_info', 'filter', 'filter' => 'strip_tags'],
-			[['username', 'email'], 'safe', 'on' => 'search']
+			[['id', 'username', 'email'], 'safe', 'on' => 'search']
 		];
 	}
 
@@ -262,6 +262,14 @@ class User extends BackModel
 		$dataProvider = new ActiveDataProvider([
 			'query' => $query,
 		]);
+
+		if (!empty($params)){
+			$this->load($params);
+		}
+
+		$query->andFilterWhere(['id' => $this->id]);
+		$query->andFilterWhere(['like', 'username', $this->username]);
+		$query->andFilterWhere(['like', 'email', $this->email]);
 
 		return $dataProvider;
 	}

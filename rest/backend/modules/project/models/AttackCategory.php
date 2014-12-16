@@ -4,6 +4,7 @@ namespace backend\modules\project\models;
 
 use kartik\builder\Form;
 use Yii;
+use yii\data\ActiveDataProvider;
 
 /**
  * This is the model class for table "attack_category".
@@ -32,7 +33,8 @@ class AttackCategory extends \backend\components\BackModel
         return [
             [['name'], 'required'],
             [['position'], 'integer'],
-            [['name'], 'string', 'max' => 255]
+            [['name'], 'string', 'max' => 255],
+	        [['id', 'name', 'position'], 'safe', 'on' => 'search']
         ];
     }
 
@@ -102,5 +104,26 @@ class AttackCategory extends \backend\components\BackModel
 	public function getBreadCrumbRoot()
 	{
 		return 'Категорії атак';
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function search($params)
+	{
+		$query = static::find();
+		$dataProvider = new ActiveDataProvider([
+			'query' => $query,
+		]);
+
+		if (!empty($params)){
+			$this->load($params);
+		}
+
+		$query->andFilterWhere(['id' => $this->id]);
+		$query->andFilterWhere(['like', 'name', $this->name]);
+		$query->andFilterWhere(['like', 'position', $this->position]);
+
+		return $dataProvider;
 	}
 }

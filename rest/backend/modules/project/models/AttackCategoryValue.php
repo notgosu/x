@@ -4,6 +4,7 @@ namespace backend\modules\project\models;
 
 use kartik\builder\Form;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -36,7 +37,8 @@ class AttackCategoryValue extends \backend\components\BackModel
             [['name', 'category_id', 'value'], 'required'],
             [['category_id', 'position'], 'integer'],
             [['value'], 'number'],
-            [['name'], 'string', 'max' => 255]
+            [['name'], 'string', 'max' => 255],
+	        [['id', 'name', 'value', 'position', 'category_id'], 'safe', 'on' => 'search']
         ];
     }
 
@@ -128,5 +130,28 @@ class AttackCategoryValue extends \backend\components\BackModel
 	public function getBreadCrumbRoot()
 	{
 		return 'Значення категорій атак';
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function search($params)
+	{
+		$query = static::find();
+		$dataProvider = new ActiveDataProvider([
+			'query' => $query,
+		]);
+
+		if (!empty($params)){
+			$this->load($params);
+		}
+
+		$query->andFilterWhere(['id' => $this->id]);
+		$query->andFilterWhere(['category_id' => $this->category_id]);
+		$query->andFilterWhere(['like', 'name', $this->name]);
+		$query->andFilterWhere(['like', 'value', $this->value]);
+		$query->andFilterWhere(['like', 'position', $this->position]);
+
+		return $dataProvider;
 	}
 }

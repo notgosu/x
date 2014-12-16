@@ -94,3 +94,7 @@ a.desc:after {
 	margin-bottom: 20px;
 }
 
+.grid-view thead tr th:first-child{
+	width: 50px;
+}
+

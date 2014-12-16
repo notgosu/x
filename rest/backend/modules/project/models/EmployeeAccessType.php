@@ -4,6 +4,7 @@ namespace backend\modules\project\models;
 
 use kartik\builder\Form;
 use Yii;
+use yii\data\ActiveDataProvider;
 
 /**
  * This is the model class for table "employee_access_type".
@@ -31,7 +32,8 @@ class EmployeeAccessType extends \backend\components\BackModel
         return [
             [['name', 'value'], 'required'],
             [['position'], 'integer'],
-            [['name'], 'string', 'max' => 255]
+            [['name'], 'string', 'max' => 255],
+	        [['id', 'name', 'value', 'position'], 'safe', 'on' => 'search']
         ];
     }
 
@@ -71,6 +73,28 @@ class EmployeeAccessType extends \backend\components\BackModel
 					'class' => \yii\grid\ActionColumn::className()
 				]
 			];
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function search($params)
+	{
+		$query = static::find();
+		$dataProvider = new ActiveDataProvider([
+			'query' => $query,
+		]);
+
+		if (!empty($params)){
+			$this->load($params);
+		}
+
+		$query->andFilterWhere(['id' => $this->id]);
+		$query->andFilterWhere(['like', 'name', $this->name]);
+		$query->andFilterWhere(['like', 'value', $this->value]);
+		$query->andFilterWhere(['like', 'position', $this->position]);
+
+		return $dataProvider;
 	}
 
 	/**

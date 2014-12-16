@@ -5,6 +5,7 @@ namespace backend\modules\project\models;
 use backend\components\BackModel;
 use kartik\builder\Form;
 use Yii;
+use yii\data\ActiveDataProvider;
 
 /**
  * This is the model class for table "employee_psycho_type".
@@ -35,7 +36,9 @@ class EmployeePsychoType extends BackModel
             [['name', 'value', 'position'], 'required'],
             [['value'], 'number'],
             [['position'], 'integer'],
-            [['name'], 'string', 'max' => 255]
+            [['name'], 'string', 'max' => 255],
+	        [['id', 'name', 'value', 'position'], 'safe', 'on' => 'search']
+
         ];
     }
 
@@ -59,6 +62,28 @@ class EmployeePsychoType extends BackModel
     {
         return $this->hasMany(Employee::className(), ['psycho_type_id' => 'id']);
     }
+
+	/**
+	 * @inheritdoc
+	 */
+	public function search($params)
+	{
+		$query = static::find();
+		$dataProvider = new ActiveDataProvider([
+			'query' => $query,
+		]);
+
+		if (!empty($params)){
+			$this->load($params);
+		}
+
+		$query->andFilterWhere(['id' => $this->id]);
+		$query->andFilterWhere(['like', 'name', $this->name]);
+		$query->andFilterWhere(['like', 'value', $this->value]);
+		$query->andFilterWhere(['like', 'position', $this->position]);
+
+		return $dataProvider;
+	}
 
 	/**
 	 * @param bool $viewAction

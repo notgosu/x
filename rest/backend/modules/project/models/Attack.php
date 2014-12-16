@@ -4,6 +4,7 @@ namespace backend\modules\project\models;
 
 use kartik\builder\Form;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 
@@ -74,7 +75,8 @@ class Attack extends \backend\components\BackModel
             [['object_type_id', 'attack_sum'], 'integer'],
             [['tech_parameter'], 'number'],
             [['name'], 'string', 'max' => 255],
-	        ['additionalAttributes', 'safe']
+	        ['additionalAttributes', 'safe'],
+	        [['id', 'name', 'object_type_id', 'attack_sum', 'tech_parameter'], 'safe', 'on' => 'search']
         ];
     }
 
@@ -188,6 +190,31 @@ class Attack extends \backend\components\BackModel
 		}
 
 		return $values;
+	}
+
+	/**
+	 * @param $params
+	 *
+	 * @return ActiveDataProvider
+	 */
+	public function search($params)
+	{
+		$query = static::find();
+		$dataProvider = new ActiveDataProvider([
+			'query' => $query,
+		]);
+
+		if (!empty($params)){
+			$this->load($params);
+		}
+
+		$query->andFilterWhere(['id' => $this->id]);
+		$query->andFilterWhere(['object_type_id' => $this->object_type_id]);
+		$query->andFilterWhere(['like', 'name', $this->name]);
+		$query->andFilterWhere(['like', 'attack_sum', $this->attack_sum]);
+		$query->andFilterWhere(['like', 'tech_parameter', $this->tech_parameter]);
+
+		return $dataProvider;
 	}
 
 	/**

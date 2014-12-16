@@ -5,6 +5,7 @@ namespace backend\modules\project\models;
 use backend\components\BackModel;
 use kartik\builder\Form;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\validators\EmailValidator;
@@ -129,9 +130,32 @@ class Company extends BackModel
 	        ['emails', 'checkEmails'],
 	        ['messengers', 'checkMessengers'],
 	        ['additionalAttributes', 'safe'],
-            [['name', 'site', 'address', 'juristic_address', 'bank_requisites'], 'string', 'max' => 255]
+            [['name', 'site', 'address', 'juristic_address', 'bank_requisites'], 'string', 'max' => 255],
+	        [['id', 'name', 'critical_info_price', 'market_info_price'],'safe', 'on' => 'search']
         ];
     }
+
+	/**
+	 * @inheritdoc
+	 */
+	public function search($params)
+	{
+		$query = static::find();
+		$dataProvider = new ActiveDataProvider([
+			'query' => $query,
+		]);
+
+		if (!empty($params)){
+			$this->load($params);
+		}
+
+		$query->andFilterWhere(['id' => $this->id]);
+		$query->andFilterWhere(['like', 'name', $this->name]);
+		$query->andFilterWhere(['like', 'critical_info_price', $this->critical_info_price]);
+		$query->andFilterWhere(['like', 'market_info_price', $this->market_info_price]);
+
+		return $dataProvider;
+	}
 
 	/**
 	 * @return bool
