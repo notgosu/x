@@ -9,6 +9,7 @@ use common\models\User;
 use yii\base\ErrorException;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\base\UserException;
 use yii\filters\AccessControl;
 use yii\helpers\Html;
 use yii\web\Controller;
@@ -170,11 +171,11 @@ class BackController extends Controller
 		catch (Exception $e){
 			if ($e->errorInfo[1] == 1451)
 			{
-				throw new InvalidConfigException('Видалiть спочатку зв`язанi записи!');
+				throw new UserException('Видалiть спочатку зв`язанi записи!');
 			}
 			else
 			{
-				throw new ErrorException('Помилка при видаленнi: '.$e->getMessage());
+				throw new UserException('Помилка при видаленнi: '.$e->getMessage());
 			}
 		}
 
