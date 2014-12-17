@@ -68,8 +68,7 @@ class m141216_171934_update_fk_behavior extends Migration
 		    'RESTRICT'
 	    );
 
-	    //fk_att_object_id_to_object_type_table
-	    $this->dropForeignKey('fk_att_object_id_to_object_type_table', 'attack');
+	    $this->dropForeignKey('fk_att_object_type_id_to_object_type_table', 'attack');
 	    $this->addForeignKey(
 		    'fk_att_object_type_id_to_object_type_table',
 		    'attack',
