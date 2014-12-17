@@ -8,6 +8,7 @@ namespace backend\controllers;
 use common\models\User;
 use yii\base\ErrorException;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\filters\AccessControl;
 use yii\helpers\Html;
 use yii\web\Controller;
@@ -163,9 +164,20 @@ class BackController extends Controller
 	{
 		$model = $this->loadModel($id);
 
-		if (!$model->delete()) {
-			throw new ErrorException;
+		try{
+			$model->delete();
 		}
+		catch (Exception $e){
+			if ($e->errorInfo[1] == 1451)
+			{
+				throw new InvalidConfigException('Видалiть спочатку зв`язанi записи!');
+			}
+			else
+			{
+				throw new ErrorException('Помилка при видаленнi: '.$e->getMessage());
+			}
+		}
+
 
 		$this->redirect(['index']);
 	}
