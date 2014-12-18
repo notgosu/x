@@ -121,15 +121,14 @@ class Company extends BackModel
     public function rules()
     {
         return [
-            [['name', 'critical_info_price', 'market_info_price', 'site', 'address', 'juristic_address', 'bank_requisites', 'comment'], 'required'],
+            [['name', 'critical_info_price', 'market_info_price'], 'required'],
             [['photo_id', 'critical_info_price', 'market_info_price', 'employee_id'], 'integer'],
 	        ['photo_id', 'default', 'value' => 0],
             ['comment', 'string'],
 	        ['comment', 'filter', 'filter' => 'strip_tags'],
 	        ['phones', 'checkPhones'],
 	        ['emails', 'checkEmails'],
-	        ['messengers', 'checkMessengers'],
-	        ['additionalAttributes', 'safe'],
+	        [['messengers', 'additionalAttributes', 'comment', 'site', 'address', 'juristic_address', 'bank_requisites'], 'safe'],
             [['name', 'site', 'address', 'juristic_address', 'bank_requisites'], 'string', 'max' => 255],
 	        [['id', 'name', 'critical_info_price', 'market_info_price'],'safe', 'on' => 'search']
         ];
@@ -205,11 +204,9 @@ class Company extends BackModel
 				$valid = false;
 			}
 
-			if (!$valid){
+			if (!$valid && $notCorrectEmail){
 
-				$this->addError('emails[0]', $notCorrectEmail
-						? 'Один чи декiлька iз заповнених email не є корректним'
-						: 'Необхiдно заповнити кожен email зi створених');
+				$this->addError('emails[0]', 'Один чи декiлька iз заповнених email не є корректним');
 				return false;
 			}
 
