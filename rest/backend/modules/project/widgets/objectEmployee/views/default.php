@@ -28,11 +28,14 @@ echo \yii\grid\GridView::widget(
 							return \yii\helpers\Html::dropDownList(
 								\yii\helpers\Html::getInputName($object, 'employees').'['.$index.'][access_type_id]',
 								$data->access_type_id,
-								\yii\helpers\ArrayHelper::map(
-									\backend\modules\project\models\EmployeeAccessType::find()->all(),
-									'id',
-									'name'
-								),
+                                \yii\helpers\ArrayHelper::merge(
+                                    ['' => 'вибeрiть тип доступу'],
+                                    \yii\helpers\ArrayHelper::map(
+                                        \backend\modules\project\models\EmployeeAccessType::find()->all(),
+                                        'id',
+                                        'name'
+                                    )
+                                ),
 								[
 									'class' => 'form-control'
 								]

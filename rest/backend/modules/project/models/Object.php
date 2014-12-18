@@ -86,6 +86,9 @@ class Object extends \backend\components\BackModel
 	}
 
 	public function validateEmployees(){
+        $i = 0;
+        $error = false;
+
 		foreach ($this->employees as $employee){
 			if (!$this->isNewRecord){
 				$employeeParam = ObjectEmployeeParams::find()
@@ -101,11 +104,23 @@ class Object extends \backend\components\BackModel
 			}
 
 			if ($employeeParam){
-				$employeeParam->access_type_id = $employee['access_type_id'];
-				$employeeParam->is_active = $employee['is_active'];
-				$employeeParam->save(false);
+                if ($employee['access_type_id'] == ''){
+                    $this->addError('employees['.$i.']', 'Виберiть тип доступу для спiвробiтника '.$employeeParam->employee->name);
+                    $error = true;
+                }
+                else{
+                    $employeeParam->access_type_id = $employee['access_type_id'];
+                    $employeeParam->is_active = $employee['is_active'];
+                    $employeeParam->save(false);
+                }
 			}
+
+            $i++;
 		}
+
+        if ($error){
+            return false;
+        }
 
 		return true;
 	}

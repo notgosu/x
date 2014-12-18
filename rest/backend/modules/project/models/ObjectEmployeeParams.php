@@ -83,7 +83,6 @@ class ObjectEmployeeParams extends \backend\components\BackModel
 	 */
 	public static function checkForExistParams($objectId, $companyId, $tempSign = null){
 		$employees = Employee::find()->where('company_id=:cid', [':cid' => $companyId])->all();
-		$accessType = EmployeeAccessType::find()->one();
 
 		foreach ($employees as $employee){
 			if ($objectId){
@@ -105,9 +104,6 @@ class ObjectEmployeeParams extends \backend\components\BackModel
 				$model = new self();
 				$model->employee_id = $employee->id;
 				$model->object_id = $objectId;
-				if ($accessType){
-					$model->access_type_id = $accessType->id;
-				}
 				$model->temp_sign = $tempSign;
 				$model->save(false);
 			}
