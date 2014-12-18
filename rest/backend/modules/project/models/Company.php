@@ -389,12 +389,22 @@ class Company extends BackModel
 				],
 				'employee_id' => [
 					'type' => Form::INPUT_DROPDOWN_LIST,
-					'items' => ArrayHelper::map(Employee::find()->all(), 'id', 'name')
+					'items' => static::getEmployeeList()
 				],
 
 			];
 
 	}
+
+    /**
+     * @return array
+     */
+    public static function getEmployeeList(){
+        return ArrayHelper::merge(
+            ['' => 'виберіть основний контакт'],
+            ArrayHelper::map(Employee::find()->all(), 'id', 'name')
+        );
+    }
 
 	/**
 	 * @return string
