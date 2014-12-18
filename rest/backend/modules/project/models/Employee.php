@@ -89,14 +89,16 @@ class Employee extends BackModel
     public function rules()
     {
         return [
-            [['company_id', 'name', 'post', 'psycho_type_id', 'motivation', 'addition_resources', 'site', 'address', 'comment'], 'required'],
+            [['company_id', 'name', 'psycho_type_id', 'site', 'address', 'comment'], 'required'],
             [['company_id', 'psycho_type_id', 'addition_resources'], 'integer'],
             [['motivation'], 'number'],
             [['comment'], 'string'],
 	        ['comment', 'filter', 'filter' => 'strip_tags'],
 	        ['phones', 'checkPhones'],
 	        ['emails', 'checkEmails'],
-	        ['messengers', 'checkMessengers'],
+            ['motivation', 'default', 'value' => 0.0],
+            ['addition_resources', 'default', 'value' => 0],
+            [['post', 'addition_resources', 'messengers'], 'safe'],
             [['post', 'site', 'address'], 'string', 'max' => 255],
 	        [['id', 'name', 'company_id', 'post', 'psycho_type_id', 'motivation'], 'safe', 'on' => 'search']
         ];
@@ -107,19 +109,19 @@ class Employee extends BackModel
 	 */
 	public function checkPhones(){
 		$valid = true;
-		if (is_array($this->phones) && !empty($this->phones)){
-			foreach ($this->phones as $phone){
-				if (!$phone || $phone == ''){
-					$valid = false;
-				}
-			}
+        array_map('trim', $this->phones);
+        $phoneCount = count($this->phones);
+		if (!is_array($this->phones) || !$phoneCount){
+            $valid = false;
 		}
-		else{
-			$valid = false;
-		}
+        foreach ($this->phones as $phone){
+            if ($phone == '' && $phoneCount == 1){
+                $valid = false;
+            }
+        }
 
 		if (!$valid){
-			$this->addError('phones[0]', 'Необхiдно заповнити кожен телефон зi створених');
+			$this->addError('phones[0]', 'Необхiдно заповнити хоча б один телефон');
 			return false;
 		}
 
@@ -132,29 +134,20 @@ class Employee extends BackModel
 	 */
 	public function checkEmails(){
 		$valid = true;
-		$notCorrectEmail = false;
-
 		if (is_array($this->emails) && !empty($this->emails)){
 			foreach ($this->emails as $email){
-				$emailValidator = new EmailValidator();
-				if (!$email || $email == ''){
-					$valid = false;
-				}
-				if ($valid && !$emailValidator->validate($email)){
-					$valid = false;
-					$notCorrectEmail = true;
-				}
+                if ($email != ''){
+                    $emailValidator = new EmailValidator();
+                    if ($valid && !$emailValidator->validate($email)){
+                        $valid = false;
+                    }
+                }
 			}
-		}
-		else{
-			$valid = false;
 		}
 
 		if (!$valid){
 
-			$this->addError('emails[0]', $notCorrectEmail
-					? 'Один чи декiлька iз заповнених email не є корректним'
-					: 'Необхiдно заповнити кожен email зi створених');
+			$this->addError('emails[0]', 'Один чи декiлька iз заповнених email не є корректним');
 			return false;
 		}
 
@@ -313,6 +306,26 @@ class Employee extends BackModel
 			];
 	}
 
+    /**
+     * @return array
+     */
+    public static function getCompanyList(){
+        return ArrayHelper::merge(
+            ['' => 'виберіть компанію'],
+            ArrayHelper::map(Company::find()->all(), 'id', 'name')
+        );
+    }
+
+    /**
+     * @return array
+     */
+    public static function getPsychoTypeList(){
+        return ArrayHelper::merge(
+            ['' => 'виберіть психотип'],
+            ArrayHelper::map(EmployeePsychoType::find()->all(), 'id', 'name')
+        );
+    }
+
 	/**
 	 * @return array
 	 */
@@ -325,14 +338,14 @@ class Employee extends BackModel
 				],
 				'company_id' => [
 					'type' => Form::INPUT_DROPDOWN_LIST,
-					'items' => ArrayHelper::map(Company::find()->all(), 'id', 'name')
-				],
+					'items' => static::getCompanyList()
+                ],
 				'post' => [
 					'type' => Form::INPUT_TEXT,
 				],
 				'psycho_type_id' => [
 					'type' => Form::INPUT_DROPDOWN_LIST,
-					'items' => ArrayHelper::map(EmployeePsychoType::find()->all(), 'id', 'name')
+					'items' => static::getPsychoTypeList()
 				],
 				'motivation' => [
 					'type' => Form::INPUT_TEXT,
