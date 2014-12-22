@@ -7,6 +7,7 @@ use backend\modules\project\widgets\objectEmployee\ObjectEmployeeWidget;
 use kartik\builder\Form;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -230,7 +231,16 @@ class Object extends \backend\components\BackModel
 				],
 				'info_amount',
 				[
-					'class' => \yii\grid\ActionColumn::className()
+					'class' => \yii\grid\ActionColumn::className(),
+                    'buttons' => [
+                        'view-result' => function ($url, $model, $key){
+                                return Html::a(
+                                    '<i class="glyphicon glyphicon-list-alt"></i>',
+                                    $url
+                                );
+                            }
+                    ],
+                    'template' => '{view} {update} {delete} {view-result}'
 				]
 			];
 	}
@@ -373,4 +383,273 @@ class Object extends \backend\components\BackModel
 	{
 		return 'Об\'єкт';
 	}
+
+    /**
+     * @return array
+     */
+    public function getFinalResultProvider(){
+        $result = [];
+        $internalResult = [];
+        $company = $this->company;
+        $CC = $company->calculateCC();
+        //обєм інформації в обєкті
+        $V = number_format($this->info_amount/100, 2);
+        //ціна інформації - береться з компанії - ринкова вартість інформації
+        $R = $company->market_info_price;
+        $m = number_format($R / $company->critical_info_price, 7);
+
+        //Активные сотрудники в обьекте
+        $objectEmployees = (new Query())
+            ->select('employee_id, access_type_id')
+            ->from(ObjectEmployeeParams::tableName())
+            ->where('is_active=1')
+            ->all();
+
+        foreach ($objectEmployees as $employee){
+            $employeeModel = (new Query())
+                ->select('employee.name, employee.addition_resources, employee_psycho_type.value AS psychoTypeValue')
+                ->from(Employee::tableName())
+                ->leftJoin(EmployeePsychoType::tableName(), 'employee_psycho_type.id=employee.psycho_type_id')
+                ->where('employee.id=:id', [':id' => $employee['employee_id']])
+                ->one();
+
+            if ($employeeModel){
+                //TODO ДОБАВИТЬ ПРОВЕРКУ НА СОВПАДЕНИЕ ТИПА ДОСТУПА АТАКИ И СОТРУДНИКА
+                //Параметры атак, которые могут выполнить сотрудники
+                $attacksParams = (new Query())
+                    ->select('attack_id, cost')
+                    ->from(ObjectAttackParams::tableName())
+                    ->where('object_id=:oid', [':oid' => $this->id])
+                    ->andWhere('cost <= :cost', [':cost' => $employeeModel['addition_resources']])
+                    ->andWhere('is_active=1')
+                    ->all();
+
+                //Для каждой возможной атаки расчитываем данные
+                foreach ($attacksParams as $attackParam){
+
+                    $attackModel = (new Query())
+                        ->select('name, tech_parameter')
+                        ->from(Attack::tableName())
+                        ->where('id=:id', [':id' => $attackParam['attack_id']])
+                        ->one();
+
+                    if ($attackModel){
+                        //технічний коефіціент атаки
+                        $kT = $attackModel['tech_parameter'];
+                        //витрата на атаку
+                        $D = $attackParam['cost'];
+                        //для конкретного співробітника можливість залучення додаткових ресурсів
+                        $M = number_format($employeeModel['addition_resources'] / $attackParam['cost'], 7);
+                        //З модуля психотив, який відповідає конкретному зловмисника
+                        $Ph = $employeeModel['psychoTypeValue'];
+                        //ймовірнісний коефіціент атаки
+                        $A = number_format(1 - ($D / ($V * $R)), 7);
+
+                        //коефіціент співробітника
+                        $W = number_format($m * $M * $Ph, 7);
+
+                        $internalResult['W'][] = $W;
+                        $internalResult['KT'][] = $kT;
+                        $internalResult['A'][] = $A;
+
+                        $result[] = [
+                            'id' => '',
+                            'attack_name' => $attackModel['name'],
+                            'object' => $this->name,
+                            'employee' => $employeeModel['name'],
+                            'attack_param1' => '',
+                            'attack_param2' => '',
+                            'attack_param3' => '',
+                            'attack_access' => '',
+                            'amount' => $attackParam['cost'],
+                            'cc' => $CC,
+                            'kt' => $kT,
+                            'w' => $W,
+                            'a' => $A,
+                            'z' => ''
+                        ];
+                    }
+                }
+
+
+
+            }
+        }
+
+//        for ($i=1; $i <=25; $i++) {
+//            $result[] = [
+//                'id' => '',
+//                'attack_name' => "Атака".$i,
+//                'object' => $this->name,
+//                'employee' => 'Роб'.$i,
+//                'attack_param1' => '',
+//                'attack_param2' => '',
+//                'attack_param3' => '',
+//                'attack_access' => '',
+//                'amount' => 23,
+//                'cc' => 0.63,
+//                'kt' => '',
+//                'w' => '',
+//                'a' => '',
+//                'z' => ''
+//            ];
+//        }
+//
+//
+//
+//        $internalResult['W'] = [
+//            '0.346',
+//            '0.526',
+//            '0.248',
+//            '0.577',
+//            '0.555',
+//            '0.748',
+//            '0.426',
+//            '0.533',
+//            '0.269',
+//            '0.245',
+//            '0.535',
+//            '0.362',
+//            '0.592',
+//            '0.27',
+//            '0.582',
+//            '0.365',
+//            '0.457',
+//            '0.361',
+//            '0.763',
+//            '0.472',
+//            '0.521',
+//            '0.564',
+//            '0.291',
+//            '0.23',
+//            '0.78'
+//        ];
+//        $internalResult['KT'] = [
+//            '0.383',
+//            '0.445',
+//            '0.6',
+//            '0.321',
+//            '0.373',
+//            '0.45',
+//            '0.778',
+//            '0.309',
+//            '0.575',
+//            '0.668',
+//            '0.454',
+//            '0.719',
+//            '0.383',
+//            '0.548',
+//            '0.399',
+//            '0.634',
+//            '0.305',
+//            '0.779',
+//            '0.317',
+//            '0.474',
+//            '0.671',
+//            '0.478',
+//            '0.458',
+//            '0.3',
+//            '0.9'
+//        ];
+//        $internalResult['A'] = [
+//            '0.567',
+//            '0.431',
+//            '0.606',
+//            '0.416',
+//            '0.293',
+//            '0.662',
+//            '0.542',
+//            '0.562',
+//            '0.724',
+//            '0.473',
+//            '0.279',
+//            '0.711',
+//            '0.446',
+//            '0.738',
+//            '0.712',
+//            '0.426',
+//            '0.623',
+//            '0.732',
+//            '0.39',
+//            '0.285',
+//            '0.714',
+//            '0.333',
+//            '0.01',
+//            '0.01',
+//            '0.74',
+//        ];
+
+
+
+        //Обработка промежуточного массива для поиска min/max и формирования результирующего массива
+        if (!empty($internalResult)){
+            $config = Yii::$app->config;
+
+            $CCmin = $config->get('CCmin', 0.15);
+            $CCmax = $config->get('CCmax', 0.89);
+            $CCcrit = $config->get('CCcrit', 0.1);
+
+            $Wmin = min($internalResult['W']);
+            $Wmax = max($internalResult['W']);
+            $Wcrit = $config->get('Wcrit', 0.3);
+
+            $KTmin = min($internalResult['KT']);
+            $KTmax = max($internalResult['KT']);
+            $KTcrit = $config->get('KTcrit', 0.35);
+
+            $Amin = min($internalResult['A']);
+            $Amax = max($internalResult['A']);
+            $Acrit = $config->get('Acrit', 0.35);
+
+            $i = 1;
+            foreach ($result as &$resultElem){
+                $resultElem['id'] = $i;
+
+                $ccDivided = $CCmax - $CCmin;
+                $resultElem['cc'] = $ccDivided != 0
+                    ? number_format(
+                        abs(($resultElem['cc'] - $CCmin)/$ccDivided),
+                        7
+                    )
+                    : 1;
+
+
+                $ktDivided = number_format($KTmax - $KTmin, 7);
+                $resultElem['kt'] = $ktDivided != 0
+                    ? number_format(
+                        abs(($internalResult['KT'][$i-1] - $KTmin)/$ktDivided),
+                        7
+                    )
+                    : 1;
+
+                $wDivided = $Wmax - $Wmin;
+                $resultElem['w'] = $wDivided != 0
+                    ? number_format(
+                        abs(($internalResult['W'][$i-1] - $Wmin)/$wDivided),
+                        7
+                    )
+                    : 1;
+
+                $aDivided = $Amax - $Amin;
+                $resultElem['a'] = $aDivided != 0
+                    ? number_format(
+                        abs(($internalResult['A'][$i-1] - $Amin)/$aDivided),
+                        7
+                    )
+                    : 1;
+
+                $resultElem['z'] = number_format(
+                    pow($resultElem['cc'], $CCcrit) *
+                    pow($resultElem['w'], $Wcrit) *
+                    pow($resultElem['kt'], $KTcrit) *
+                    pow($resultElem['a'], $Acrit),
+                    7);
+
+                $i++;
+            }
+        }
+
+
+        return $result;
+    }
 }

@@ -55,7 +55,6 @@ class BackModel extends ActiveRecord
 		return [];
 	}
 
-
 	/**
 	 * @return array
 	 */

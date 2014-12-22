@@ -106,6 +106,13 @@ class Company extends BackModel
 		return $this->hasOne(Employee::className(), ['id' => 'employee_id']);
 	}
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCategoryAttributeValues(){
+        return $this->hasMany(CompanyCategoryAttributeValue::className(), ['company_id' => 'id']);
+    }
+
 
 	/**
      * @inheritdoc
@@ -443,4 +450,20 @@ class Company extends BackModel
 
 		return $values;
 	}
+
+    /**
+     * @return int
+     */
+    public function calculateCC(){
+        $catAttrValues = $this->categoryAttributeValues;
+        if (empty($catAttrValues)){
+            return 1;
+        }
+        $result = 1;
+        foreach ($catAttrValues as $catAttrVal){
+            $result = $catAttrVal->attributeRel->value;
+        }
+
+        return $result;
+    }
 }

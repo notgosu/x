@@ -68,7 +68,7 @@ AppAsset::register($this);
 					['label' => 'Значення категорій атак', 'url' => ['/project/attack-category-value/index']],
 				]
 			],
-			['label' => 'Користувач', 'url' => ['/user/default/index']],
+  			['label' => 'Користувач', 'url' => ['/user/default/index']],
 
 		];
 	if (Yii::$app->user->isGuest) {
@@ -83,6 +83,12 @@ AppAsset::register($this);
 			[
 				'options' => ['class' => 'navbar-nav navbar-right'],
 				'items' => [
+                    [
+                        'label' => 'Налаштування',
+                        'items' => [
+                            ['label' => 'Конфiгурацiя', 'url' => ['/config/default/index']],
+                        ]
+                    ],
 					[
 						'label' => 'Вийти (' . Yii::$app->user->identity->username . ')',
 						'url' => ['/site/logout'],

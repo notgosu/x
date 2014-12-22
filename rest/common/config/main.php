@@ -15,6 +15,7 @@ return [
 		"yii.migrations"=> [
 			"@backend/modules/user/migrations",
 			"@backend/modules/project/migrations",
+			"@backend/modules/config/migrations",
 		],
 	]
 ];

@@ -19,8 +19,12 @@ return [
 	    'user' => [
 		    'class' => 'backend\modules\user\User'
 	    ],
+        'config' => [
+            'class' => 'backend\modules\config\Config',
+        ],
     ],
     'components' => [
+        'config' => 'backend\modules\config\components\ConfigurationComponent',
 	    'urlManager' => [
 		    'enablePrettyUrl' => true,
 		    'showScriptName' => false,
