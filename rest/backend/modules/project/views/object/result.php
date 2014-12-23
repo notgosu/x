@@ -18,22 +18,18 @@
             [
                 'dataProvider' => $provider,
                 'filterModel' => null,
-                'columns' => [
-                            'id',
-                            'attack_name',
-                            'object',
-                            'employee',
-//                            'attack_param1',
-//                            'attack_param2',
-//                            'attack_param3',
-//                            'attack_access',
-                            'amount',
-                            'cc',
-                            'kt',
-                            'w',
-                            'a',
-                            'z'
-                        ]
+                'columns' => $cols,
+                'rowOptions' => function ($model, $key, $index, $grid){
+                        if ($model['z'] < Yii::$app->config->get('GreenValue', 0.37)){
+                            return ['class' => 'green-color'];
+                        }
+                        elseif($model['z'] < Yii::$app->config->get('YellowValue', 0.37)){
+                            return ['class' => 'yellow-color'];
+                        }
+                        else{
+                            return ['class' => 'red-color'];
+                        }
+                    }
             ]
         );
 

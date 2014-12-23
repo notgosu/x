@@ -5,6 +5,7 @@ namespace backend\modules\project\models;
 use kartik\builder\Form;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 
@@ -14,7 +15,7 @@ use yii\helpers\Html;
  * @property integer $id
  * @property string $name
  * @property integer $object_type_id
- * @property integer $attack_sum
+ * @property integer $access_type_id
  * @property string $tech_parameter
  *
  * @property ObjectType $objectType
@@ -71,12 +72,12 @@ class Attack extends \backend\components\BackModel
     public function rules()
     {
         return [
-            [['name', 'object_type_id', 'attack_sum', 'tech_parameter'], 'required'],
-            [['object_type_id', 'attack_sum'], 'integer'],
+            [['name', 'object_type_id', 'tech_parameter'], 'required'],
+            [['object_type_id', 'access_type_id'], 'integer'],
             [['tech_parameter'], 'number'],
             [['name'], 'string', 'max' => 255],
 	        ['additionalAttributes', 'safe'],
-	        [['id', 'name', 'object_type_id', 'attack_sum', 'tech_parameter'], 'safe', 'on' => 'search']
+	        [['id', 'name', 'object_type_id', 'tech_parameter'], 'safe', 'on' => 'search']
         ];
     }
 
@@ -89,7 +90,7 @@ class Attack extends \backend\components\BackModel
             'id' => 'ID',
             'name' => 'Назва',
             'object_type_id' => 'Тип об`єкту',
-            'attack_sum' => 'Витрати на атаку',
+            'access_type_id' => 'Тип доступу',
             'tech_parameter' => 'Технічний параметр',
         ];
     }
@@ -100,6 +101,14 @@ class Attack extends \backend\components\BackModel
     public function getObjectType()
     {
         return $this->hasOne(ObjectType::className(), ['id' => 'object_type_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAccessType()
+    {
+        return $this->hasOne(EmployeeAccessType::className(), ['id' => 'access_type_id']);
     }
 
 	/**
@@ -118,7 +127,6 @@ class Attack extends \backend\components\BackModel
 					'value' => $this->getObjectType()->one()->name
 				],
 
-				'attack_sum',
 				'tech_parameter'
 			]
 			: [
@@ -131,7 +139,13 @@ class Attack extends \backend\components\BackModel
 							return $data->getObjectType()->one()->name;
 						}
 				],
-				'attack_sum',
+				[
+                    'attribute' => 'access_type_id',
+                    'filter' => ArrayHelper::map(EmployeeAccessType::find()->all(), 'id', 'name'),
+                    'value' => function (self $data) {
+                            return $data->accessType->name;
+                        }
+                ],
 				'tech_parameter',
 				[
 					'class' => \yii\grid\ActionColumn::className()
@@ -153,14 +167,15 @@ class Attack extends \backend\components\BackModel
 					'type' => Form::INPUT_DROPDOWN_LIST,
 					'items' => ArrayHelper::map(ObjectType::find()->all(), 'id', 'name')
 				],
+                'access_type_id' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => ArrayHelper::map(EmployeeAccessType::find()->all(), 'id', 'name')
+                ],
 				'additionalAttributes[]' => [
 					'type' => Form::INPUT_RAW,
 					'value' => function (self $data) {
 							return $data->getAdditionalAttrs();
 						}
-				],
-				'attack_sum' => [
-					'type' => Form::INPUT_TEXT,
 				],
 				'tech_parameter' => [
 					'type' => Form::INPUT_TEXT,
@@ -211,7 +226,7 @@ class Attack extends \backend\components\BackModel
 		$query->andFilterWhere(['id' => $this->id]);
 		$query->andFilterWhere(['object_type_id' => $this->object_type_id]);
 		$query->andFilterWhere(['like', 'name', $this->name]);
-		$query->andFilterWhere(['like', 'attack_sum', $this->attack_sum]);
+		$query->andFilterWhere(['access_type_id' => $this->access_type_id]);
 		$query->andFilterWhere(['like', 'tech_parameter', $this->tech_parameter]);
 
 		return $dataProvider;
@@ -224,4 +239,35 @@ class Attack extends \backend\components\BackModel
 	{
 		return 'Атаки';
 	}
+
+    /**
+     * @param null $attackId
+     * @param bool $onlyKeys
+     *
+     * @return array
+     */
+    public static function getAttackParams($attackId = null, $onlyKeys = false)
+    {
+        $result = [];
+
+        if ($onlyKeys){
+            return (new Query())
+                ->select('name')
+                ->from(AttackCategory::tableName())
+                ->column();
+        }
+
+        $params = AttackCategoryValueToAttack::find();
+        if ($attackId){
+            $params->where('attack_id = :aid', [':aid' => (int)$attackId]);
+        }
+
+        $params = $params->all();
+
+        foreach ($params as $param){
+            $result[$param->attackCategory->name] = $param->attackValue->name;
+        }
+
+        return $result;
+    }
 }

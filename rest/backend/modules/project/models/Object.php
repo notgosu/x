@@ -389,6 +389,9 @@ class Object extends \backend\components\BackModel
      */
     public function getFinalResultProvider(){
         $result = [];
+        //Массив динамiчних параметрiв атак для запобiгання повторних запитiв до БД
+        $attackDynamicParams = [];
+        //Результати першого этапу розрахункiв
         $internalResult = [];
         $company = $this->company;
         $CC = $company->calculateCC();
@@ -414,12 +417,13 @@ class Object extends \backend\components\BackModel
                 ->one();
 
             if ($employeeModel){
-                //TODO ДОБАВИТЬ ПРОВЕРКУ НА СОВПАДЕНИЕ ТИПА ДОСТУПА АТАКИ И СОТРУДНИКА
                 //Параметры атак, которые могут выполнить сотрудники
                 $attacksParams = (new Query())
                     ->select('attack_id, cost')
                     ->from(ObjectAttackParams::tableName())
+                    ->leftJoin(Attack::tableName(), 'attack_id=attack.id')
                     ->where('object_id=:oid', [':oid' => $this->id])
+                    ->andWhere('attack.access_type_id=:atid', [':atid' => $employee['access_type_id']])
                     ->andWhere('cost <= :cost', [':cost' => $employeeModel['addition_resources']])
                     ->andWhere('is_active=1')
                     ->all();
@@ -428,7 +432,7 @@ class Object extends \backend\components\BackModel
                 foreach ($attacksParams as $attackParam){
 
                     $attackModel = (new Query())
-                        ->select('name, tech_parameter')
+                        ->select('id, name, tech_parameter')
                         ->from(Attack::tableName())
                         ->where('id=:id', [':id' => $attackParam['attack_id']])
                         ->one();
@@ -452,27 +456,28 @@ class Object extends \backend\components\BackModel
                         $internalResult['KT'][] = $kT;
                         $internalResult['A'][] = $A;
 
-                        $result[] = [
+                        $partialResult = [
                             'id' => '',
-                            'attack_name' => $attackModel['name'],
-                            'object' => $this->name,
-                            'employee' => $employeeModel['name'],
-                            'attack_param1' => '',
-                            'attack_param2' => '',
-                            'attack_param3' => '',
-                            'attack_access' => '',
-                            'amount' => $attackParam['cost'],
+                            'Назва атаки' => $attackModel['name'],
+                            'Об`єкт' => $this->name,
+                            'Спiвробiтник' => $employeeModel['name'],
+                            'Сума атаки' => $attackParam['cost'],
                             'cc' => $CC,
                             'kt' => $kT,
                             'w' => $W,
                             'a' => $A,
                             'z' => ''
                         ];
+
+                        if (!isset($attackDynamicParams[$attackModel['id']])){
+                            $attackDynamicParams[$attackModel['id']] = Attack::getAttackParams($attackModel['id']);
+                        }
+                        $result[] = ArrayHelper::merge(
+                            $partialResult,
+                            $attackDynamicParams[$attackModel['id']]
+                        );
                     }
                 }
-
-
-
             }
         }
 

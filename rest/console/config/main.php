@@ -11,6 +11,12 @@ return [
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
     'controllerNamespace' => 'console\controllers',
+    'controllerMap' => [
+        'migrate' => [
+            'class' => 'console\components\migration\MigrateController',
+            'templateFile' => '@console/components/migration/migration_template.php',
+        ],
+    ],
     'modules' => [],
     'components' => [
         'log' => [
