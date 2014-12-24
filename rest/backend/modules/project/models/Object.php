@@ -611,7 +611,7 @@ class Object extends \backend\components\BackModel
                 $resultElem['id'] = $i;
 
                 $ccDivided = $CCmax - $CCmin;
-                $resultElemCC = $ccDivided != 0
+                $resultElem['cc'] = $ccDivided != 0
                     ? number_format(
                         abs(($resultElem['cc'] - $CCmin)/$ccDivided),
                         7
@@ -620,7 +620,7 @@ class Object extends \backend\components\BackModel
 
 
                 $ktDivided = number_format($KTmax - $KTmin, 7);
-                $resultElemKT = $ktDivided != 0
+                $resultElem['kt'] = $ktDivided != 0
                     ? number_format(
                         abs(($internalResult['KT'][$i-1] - $KTmin)/$ktDivided),
                         7
@@ -628,7 +628,7 @@ class Object extends \backend\components\BackModel
                     : 1;
 
                 $wDivided = $Wmax - $Wmin;
-                $resultElemW = $wDivided != 0
+                $resultElem['w'] = $wDivided != 0
                     ? number_format(
                         abs(($internalResult['W'][$i-1] - $Wmin)/$wDivided),
                         7
@@ -636,7 +636,7 @@ class Object extends \backend\components\BackModel
                     : 1;
 
                 $aDivided = $Amax - $Amin;
-                $resultElemA = $aDivided != 0
+                $resultElem['a'] = $aDivided != 0
                     ? number_format(
                         abs(($internalResult['A'][$i-1] - $Amin)/$aDivided),
                         7
@@ -644,10 +644,10 @@ class Object extends \backend\components\BackModel
                     : 1;
 
                 $resultElem['z'] = number_format(
-                    pow($resultElemCC, $CCcrit) *
-                    pow($resultElemW, $Wcrit) *
-                    pow($resultElemKT, $KTcrit) *
-                    pow($resultElemA, $Acrit),
+                    pow($resultElem['cc'], $CCcrit) *
+                    pow($resultElem['w'], $Wcrit) *
+                    pow($resultElem['kt'], $KTcrit) *
+                    pow($resultElem['a'], $Acrit),
                     7);
 
                 $i++;
