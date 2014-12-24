@@ -461,7 +461,7 @@ class Company extends BackModel
         }
         $result = 1;
         foreach ($catAttrValues as $catAttrVal){
-            $result = $catAttrVal->attributeRel->value;
+            $result = $result * $catAttrVal->attributeRel->value;
         }
 
         return $result;
