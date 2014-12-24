@@ -604,7 +604,7 @@ class Object extends \backend\components\BackModel
 
             $Amin = min($internalResult['A']);
             $Amax = max($internalResult['A']);
-            $Acrit = $config->get('Acrit', 0.35);
+            $Acrit = $config->get('Acrit', 0.25);
 
             $i = 1;
             foreach ($result as &$resultElem){
