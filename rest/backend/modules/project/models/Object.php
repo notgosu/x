@@ -592,7 +592,7 @@ class Object extends \backend\components\BackModel
 
             $CCmin = $config->get('CCmin', 0.15);
             $CCmax = $config->get('CCmax', 0.89);
-            $CCcrit = 0.1;//$config->get('CCcrit', 0.1);
+            $CCcrit = $config->get('CCcrit', 0.1);
 
             $Wmin = min($internalResult['W']);
             $Wmax = max($internalResult['W']);
@@ -652,10 +652,10 @@ class Object extends \backend\components\BackModel
                 $resultElem['a'] = $resultElem['a'].'('.$resultElemA.')';
 
                 $resultElem['z'] =
-                    '('.$resultElemCC.'^'.$CCcrit.')*'.
-                    '('.$resultElemW.'^'.$Wcrit.')*'.
-                    '('.$resultElemKT.'^'.$KTcrit.')*'.
-                    '('.$resultElemA.'^'.$Acrit.')*'.
+//                    '('.$resultElemCC.'^'.$CCcrit.')*'.
+//                    '('.$resultElemW.'^'.$Wcrit.')*'.
+//                    '('.$resultElemKT.'^'.$KTcrit.')*'.
+//                    '('.$resultElemA.'^'.$Acrit.')*'.
                     number_format(
                     pow($resultElemCC, $CCcrit) *
                     pow($resultElemW, $Wcrit) *
