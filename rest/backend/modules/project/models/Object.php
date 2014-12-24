@@ -651,7 +651,12 @@ class Object extends \backend\components\BackModel
 
                 $resultElem['a'] = $resultElem['a'].'('.$resultElemA.')';
 
-                $resultElem['z'] = number_format(
+                $resultElem['z'] =
+                    '('.$resultElemCC.'^'.$CCcrit.')*'.
+                    '('.$resultElemW.'^'.$Wcrit.')*'.
+                    '('.$resultElemKT.'^'.$KTcrit.')*'.
+                    '('.$resultElemA.'^'.$Acrit.')*'.
+                    number_format(
                     pow($resultElemCC, $CCcrit) *
                     pow($resultElemW, $Wcrit) *
                     pow($resultElemKT, $KTcrit) *
