@@ -592,7 +592,7 @@ class Object extends \backend\components\BackModel
 
             $CCmin = $config->get('CCmin', 0.15);
             $CCmax = $config->get('CCmax', 0.89);
-            $CCcrit = $config->get('CCcrit', 0.1);
+            $CCcrit = 0.1;//$config->get('CCcrit', 0.1);
 
             $Wmin = min($internalResult['W']);
             $Wmax = max($internalResult['W']);
