@@ -86,7 +86,7 @@ class ConfigurationComponent extends Component
      */
     public function get($key, $default = null, $force = false)
     {
-        $value = null;
+        $value = $default;
         if ($force) {
             $config = Configuration::find()
                 ->select(['config_key', 'value', 'type'])

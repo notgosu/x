@@ -481,111 +481,6 @@ class Object extends \backend\components\BackModel
             }
         }
 
-//        for ($i=1; $i <=25; $i++) {
-//            $result[] = [
-//                'id' => '',
-//                'attack_name' => "Атака".$i,
-//                'object' => $this->name,
-//                'employee' => 'Роб'.$i,
-//                'attack_param1' => '',
-//                'attack_param2' => '',
-//                'attack_param3' => '',
-//                'attack_access' => '',
-//                'amount' => 23,
-//                'cc' => 0.63,
-//                'kt' => '',
-//                'w' => '',
-//                'a' => '',
-//                'z' => ''
-//            ];
-//        }
-//
-//
-//
-//        $internalResult['W'] = [
-//            '0.346',
-//            '0.526',
-//            '0.248',
-//            '0.577',
-//            '0.555',
-//            '0.748',
-//            '0.426',
-//            '0.533',
-//            '0.269',
-//            '0.245',
-//            '0.535',
-//            '0.362',
-//            '0.592',
-//            '0.27',
-//            '0.582',
-//            '0.365',
-//            '0.457',
-//            '0.361',
-//            '0.763',
-//            '0.472',
-//            '0.521',
-//            '0.564',
-//            '0.291',
-//            '0.23',
-//            '0.78'
-//        ];
-//        $internalResult['KT'] = [
-//            '0.383',
-//            '0.445',
-//            '0.6',
-//            '0.321',
-//            '0.373',
-//            '0.45',
-//            '0.778',
-//            '0.309',
-//            '0.575',
-//            '0.668',
-//            '0.454',
-//            '0.719',
-//            '0.383',
-//            '0.548',
-//            '0.399',
-//            '0.634',
-//            '0.305',
-//            '0.779',
-//            '0.317',
-//            '0.474',
-//            '0.671',
-//            '0.478',
-//            '0.458',
-//            '0.3',
-//            '0.9'
-//        ];
-//        $internalResult['A'] = [
-//            '0.567',
-//            '0.431',
-//            '0.606',
-//            '0.416',
-//            '0.293',
-//            '0.662',
-//            '0.542',
-//            '0.562',
-//            '0.724',
-//            '0.473',
-//            '0.279',
-//            '0.711',
-//            '0.446',
-//            '0.738',
-//            '0.712',
-//            '0.426',
-//            '0.623',
-//            '0.732',
-//            '0.39',
-//            '0.285',
-//            '0.714',
-//            '0.333',
-//            '0.01',
-//            '0.01',
-//            '0.74',
-//        ];
-
-
-
         //Обработка промежуточного массива для поиска min/max и формирования результирующего массива
         if (!empty($internalResult)){
             $config = Yii::$app->config;
@@ -607,6 +502,8 @@ class Object extends \backend\components\BackModel
             $Acrit = $config->get('Acrit', 0.25);
 
             $i = 1;
+            $zeroDividedValue = 0.999999999;
+
             foreach ($result as &$resultElem){
                 $resultElem['id'] = $i;
 
@@ -616,7 +513,7 @@ class Object extends \backend\components\BackModel
                         abs(($resultElem['cc'] - $CCmin)/$ccDivided),
                         7
                     )
-                    : 1;
+                    : $zeroDividedValue;
                 $resultElem['cc'] = $resultElem['cc'].'('.$resultElemCC.')';
 
 
@@ -626,7 +523,7 @@ class Object extends \backend\components\BackModel
                         abs(($internalResult['KT'][$i-1] - $KTmin)/$ktDivided),
                         7
                     )
-                    : 1;
+                    : $zeroDividedValue;
                 $resultElem['kt'] = $resultElem['kt'].'('.$resultElemKT.')';
 
 
@@ -636,7 +533,7 @@ class Object extends \backend\components\BackModel
                         abs(($internalResult['W'][$i-1] - $Wmin)/$wDivided),
                         7
                     )
-                    : 1;
+                    : $zeroDividedValue;
 
                 $resultElem['w'] = $resultElem['w'].'('.$resultElemW.')';
 
@@ -647,15 +544,11 @@ class Object extends \backend\components\BackModel
                         abs(($internalResult['A'][$i-1] - $Amin)/$aDivided),
                         7
                     )
-                    : 1;
+                    : $zeroDividedValue;
 
                 $resultElem['a'] = $resultElem['a'].'('.$resultElemA.')';
 
                 $resultElem['z'] =
-//                    '('.$resultElemCC.'^'.$CCcrit.')*'.
-//                    '('.$resultElemW.'^'.$Wcrit.')*'.
-//                    '('.$resultElemKT.'^'.$KTcrit.')*'.
-//                    '('.$resultElemA.'^'.$Acrit.')*'.
                     number_format(
                     pow($resultElemCC, $CCcrit) *
                     pow($resultElemW, $Wcrit) *
