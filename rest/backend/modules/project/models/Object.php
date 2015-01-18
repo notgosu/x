@@ -105,7 +105,7 @@ class Object extends \backend\components\BackModel
 			}
 
 			if ($employeeParam){
-                if ($employee['access_type_id'] == ''){
+                if ($employee['access_type_id'] == '' && $employee['is_active']){
                     $this->addError('employees['.$i.']', 'Виберiть тип доступу для спiвробiтника '.$employeeParam->employee->name);
                     $error = true;
                 }
@@ -143,15 +143,18 @@ class Object extends \backend\components\BackModel
 					->one();
 			}
 
-			if ($attackParam){
-				$attackParam->cost = $attack['cost'];
-				$attackParam->is_active = $attack['is_active'];
+			if ($attackParam && $attack['is_active']){
+                $attackParam->cost = $attack['cost'];
+                $attackParam->is_active = $attack['is_active'];
 
 				if (!$attackParam->validate()){
 					$this->addError('attacks['.$i.']', 'Aтака '.$attackParam->getAttack()->one()->name.': '.join(', ', $attackParam->getFirstErrors()));
 					$valid = false;
 				}
-				$attackParam->save(false);
+                else{
+
+                    $attackParam->save(false);
+                }
 			}
 
 			$i++;

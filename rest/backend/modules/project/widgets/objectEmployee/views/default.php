@@ -46,9 +46,14 @@ echo \yii\grid\GridView::widget(
 					'attribute' => 'is_active',
 					'format' => 'raw',
 					'value' => function ($data, $key, $index) use ($object){
+                            $inputName = \yii\helpers\Html::getInputName($object, 'employees').'['.$index.'][is_active]';
+                            $inputValueInPost = isset($_POST['Object']['employees'][$index]['is_active'])
+                                ? $_POST['Object']['employees'][$index]['is_active']
+                                : false;
+
 							return \yii\helpers\Html::checkbox(
-								\yii\helpers\Html::getInputName($object, 'employees').'['.$index.'][is_active]',
-								$data->is_active,
+                                $inputName,
+                                $inputValueInPost ? true : $data->is_active,
 								[
 									'uncheck' => 0,
 									'label' => 'Активний',
