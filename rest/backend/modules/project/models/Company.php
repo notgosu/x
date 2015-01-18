@@ -86,12 +86,13 @@ class Company extends BackModel
 
 		CompanyCategoryAttributeValue::deleteAll('company_id=:cid', [':cid' => $this->id]);
 		foreach ($this->additionalAttributes as $categoryId => $attrId){
-			$value = new CompanyCategoryAttributeValue();
-			$value->company_id = $this->id;
-			$value->category_id = $categoryId;
-			$value->attribute_id = $attrId;
-			$value->save(false);
-
+            if ($attrId != ''){
+                $value = new CompanyCategoryAttributeValue();
+                $value->company_id = $this->id;
+                $value->category_id = $categoryId;
+                $value->attribute_id = $attrId;
+                $value->save(false);
+            }
 		}
 	}
 
@@ -441,7 +442,7 @@ class Company extends BackModel
 					$this,
 					'additionalAttributes['.$cat->id.']',
 					ArrayHelper::merge(
-                        ['Оберiть'],
+                        ['' => 'Оберiть'],
                         ArrayHelper::map($cat->getCompanyAttributes()->all(), 'id', 'name')
                     ),
 					['class' => 'form-control']
