@@ -440,7 +440,10 @@ class Company extends BackModel
 				$values .= Html::activeDropDownList(
 					$this,
 					'additionalAttributes['.$cat->id.']',
-					ArrayHelper::map($cat->getCompanyAttributes()->all(), 'id', 'name'),
+					ArrayHelper::merge(
+                        ['Оберiть'],
+                        ArrayHelper::map($cat->getCompanyAttributes()->all(), 'id', 'name')
+                    ),
 					['class' => 'form-control']
 				);
 				$values .= Html::tag('div', '', ['class' => 'help-block']);
