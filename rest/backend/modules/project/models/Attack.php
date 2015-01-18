@@ -5,9 +5,11 @@ namespace backend\modules\project\models;
 use kartik\builder\Form;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\db\ActiveQuery;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
+use yii\helpers\VarDumper;
 
 /**
  * This is the model class for table "attack".
@@ -111,6 +113,14 @@ class Attack extends \backend\components\BackModel
         return $this->hasOne(EmployeeAccessType::className(), ['id' => 'access_type_id']);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCategoryValueToAttack()
+    {
+        return $this->hasMany(AttackCategoryValueToAttack::className(), ['attack_id' => 'id']);
+    }
+
 	/**
 	 * @param bool $viewAction
 	 *
@@ -118,6 +128,34 @@ class Attack extends \backend\components\BackModel
 	 */
 	public function getViewColumns($viewAction = false)
 	{
+
+        $indexAttributtes = [
+            'id',
+            'name',
+            [
+                'attribute' => 'object_type_id',
+                'filter' => ArrayHelper::map(ObjectType::find()->all(), 'id', 'name'),
+                'value' => function (self $data) {
+                        return $data->getObjectType()->one()->name;
+                    }
+            ],
+            [
+                'attribute' => 'access_type_id',
+                'filter' => ArrayHelper::map(EmployeeAccessType::find()->all(), 'id', 'name'),
+                'value' => function (self $data) {
+                        return $data->accessType->name;
+                    }
+            ]];
+
+
+            $indexAttributtes = ArrayHelper::merge($indexAttributtes, static::getAdditionalAttrsForIndex());
+
+            $indexAttributtes[] = 'tech_parameter';
+            $indexAttributtes[] = [
+                'class' => \yii\grid\ActionColumn::className()
+            ];
+
+
 		return $viewAction
 			? [
 				'id',
@@ -129,28 +167,7 @@ class Attack extends \backend\components\BackModel
 
 				'tech_parameter'
 			]
-			: [
-				'id',
-				'name',
-				[
-					'attribute' => 'object_type_id',
-					'filter' => ArrayHelper::map(ObjectType::find()->all(), 'id', 'name'),
-					'value' => function (self $data) {
-							return $data->getObjectType()->one()->name;
-						}
-				],
-				[
-                    'attribute' => 'access_type_id',
-                    'filter' => ArrayHelper::map(EmployeeAccessType::find()->all(), 'id', 'name'),
-                    'value' => function (self $data) {
-                            return $data->accessType->name;
-                        }
-                ],
-				'tech_parameter',
-				[
-					'class' => \yii\grid\ActionColumn::className()
-				]
-			];
+			: $indexAttributtes;
 	}
 
 	/**
@@ -207,6 +224,44 @@ class Attack extends \backend\components\BackModel
 		return $values;
 	}
 
+    /**
+     * @return string
+     */
+    public static function getAdditionalAttrsForIndex()
+    {
+        $attributes = [];
+
+        $categories = AttackCategory::find()->orderBy('position')->all();
+        foreach ($categories as $category) {
+            $attributes[] = [
+                'header' => $category->name,
+                'filter' => ArrayHelper::map(
+                        AttackCategoryValue::find()
+                        ->where('category_id = :cid', [':cid' => $category->id])
+                        ->all(),
+                        'id',
+                        'name'
+                    ),
+                'attribute' => 'additionalAttributes',
+                'filterInputOptions' => [
+                    'name' => Html::getInputName(new Attack(), 'additionalAttributes['.$category->id.']'),
+                    'class' => 'form-control'
+                ],
+                'value' => function (self $data) use ($category) {
+                        $attackValue = AttackCategoryValueToAttack::find()
+                            ->where('attack_id = :aid', [':aid' => $data->id])
+                            ->andWhere('attack_category_id = :acid', [':acid' => $category->id])
+                            ->one();
+
+                        return $attackValue ? $attackValue->attackValue->name : null;
+                    }
+            ];
+        }
+
+
+        return $attributes;
+    }
+
 	/**
 	 * @param $params
 	 *
@@ -219,15 +274,47 @@ class Attack extends \backend\components\BackModel
 			'query' => $query,
 		]);
 
+//        $dataProvider->setSort([
+//                'attributes' => [
+//                    'id',
+//                    'categoryValueToAttack' => [
+//                        'asc' => ['attack_category_value_to_attack.attack_value_id' => SORT_ASC],
+//                        'desc' => ['attack_category_value_to_attack.attack_value_id' => SORT_DESC],
+//                        'label' => 'Country Name'
+//                    ]
+//                ]
+//            ]);
+
 		if (!empty($params)){
 			$this->load($params);
+            if (isset($params['Attack']['additionalAttributes'])){
+                $addAttrs = array_filter($params['Attack']['additionalAttributes']);
+                if (!empty($addAttrs)) {
+
+                    $query->joinWith(
+                        [
+                            'categoryValueToAttack' => function (ActiveQuery $q) use ($addAttrs) {
+                                    $attrCount = count($addAttrs) - 1;
+                                    $q->andWhere([AttackCategoryValueToAttack::tableName(
+                                        ) . '.attack_value_id' => array_values($addAttrs)]);
+                                    $q->groupBy(AttackCategoryValueToAttack::tableName(
+                                        ).'.attack_id');
+                                    $q->having( 'COUNT(attack_id) > '.$attrCount);
+
+                                }
+                        ]
+                    );
+                }
+            }
 		}
 
-		$query->andFilterWhere(['id' => $this->id]);
+
+		$query->andFilterWhere([static::tableName().'.id' => $this->id]);
 		$query->andFilterWhere(['object_type_id' => $this->object_type_id]);
 		$query->andFilterWhere(['like', 'name', $this->name]);
 		$query->andFilterWhere(['access_type_id' => $this->access_type_id]);
 		$query->andFilterWhere(['like', 'tech_parameter', $this->tech_parameter]);
+
 
 		return $dataProvider;
 	}
