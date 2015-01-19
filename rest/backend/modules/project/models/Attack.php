@@ -5,6 +5,7 @@ namespace backend\modules\project\models;
 use kartik\builder\Form;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\data\Sort;
 use yii\db\ActiveQuery;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
@@ -231,10 +232,22 @@ class Attack extends \backend\components\BackModel
     {
         $attributes = [];
 
+        $sort = new Sort();
+        $sort->attributes = [
+            'additionalAttributes'=> [
+                'asc' => ['additionalAttributes' => SORT_ASC],
+                'desc' => ['additionalAttributes' => SORT_DESC],
+            ]
+        ];
         $categories = AttackCategory::find()->orderBy('position')->all();
         foreach ($categories as $category) {
+            $sort->params = ArrayHelper::merge($_GET, [
+                'sort_category_id' => $category->id
+            ]);
             $attributes[] = [
-                'header' => $category->name,
+                'header' => $sort->link('additionalAttributes', [
+                            'label' => $category->name
+                        ]),
                 'filter' => ArrayHelper::map(
                         AttackCategoryValue::find()
                         ->where('category_id = :cid', [':cid' => $category->id])
@@ -262,6 +275,12 @@ class Attack extends \backend\components\BackModel
         return $attributes;
     }
 
+
+    public function getAdditionalAttributes()
+    {
+        return $this->additionalAttributes;
+    }
+
 	/**
 	 * @param $params
 	 *
@@ -273,17 +292,21 @@ class Attack extends \backend\components\BackModel
 		$dataProvider = new ActiveDataProvider([
 			'query' => $query,
 		]);
+        $query->joinWith(
+            ['categoryValueToAttack.attackValue' ]);
 
-//        $dataProvider->setSort([
-//                'attributes' => [
-//                    'id',
-//                    'categoryValueToAttack' => [
-//                        'asc' => ['attack_category_value_to_attack.attack_value_id' => SORT_ASC],
-//                        'desc' => ['attack_category_value_to_attack.attack_value_id' => SORT_DESC],
-//                        'label' => 'Country Name'
-//                    ]
-//                ]
-//            ]);
+        $categoryIdForOrder = Yii::$app->request->get('sort_category_id', 1);
+        $dataProvider->sort->attributes['additionalAttributes'] = [
+                        'asc' => [
+                            'FIELD(category_id, '.$categoryIdForOrder.') DESC' => '',
+                            'attack_category_value.name' => SORT_ASC,
+                        ],
+                        'desc' => [
+                            'FIELD(category_id, '.$categoryIdForOrder.') DESC' => '',
+                            'attack_category_value.name' => SORT_DESC
+                        ],
+                        'label' => 'Country Name'
+                ];
 
 		if (!empty($params)){
 			$this->load($params);
@@ -311,7 +334,7 @@ class Attack extends \backend\components\BackModel
 
 		$query->andFilterWhere([static::tableName().'.id' => $this->id]);
 		$query->andFilterWhere(['object_type_id' => $this->object_type_id]);
-		$query->andFilterWhere(['like', 'name', $this->name]);
+		$query->andFilterWhere(['like', static::tableName().'.name', $this->name]);
 		$query->andFilterWhere(['access_type_id' => $this->access_type_id]);
 		$query->andFilterWhere(['like', 'tech_parameter', $this->tech_parameter]);
 
