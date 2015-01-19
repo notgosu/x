@@ -292,8 +292,8 @@ class Attack extends \backend\components\BackModel
 		$dataProvider = new ActiveDataProvider([
 			'query' => $query,
 		]);
-        $totalItemCount = (new Query())->from(static::tableName())->groupBy('id')->count();
-        $dataProvider->setTotalCount((int)$totalItemCount);
+
+
         $query->joinWith(
             ['categoryValueToAttack.attackValue' ]);
 
@@ -339,6 +339,11 @@ class Attack extends \backend\components\BackModel
 		$query->andFilterWhere(['like', static::tableName().'.name', $this->name]);
 		$query->andFilterWhere(['access_type_id' => $this->access_type_id]);
 		$query->andFilterWhere(['like', 'tech_parameter', $this->tech_parameter]);
+
+
+        $cloneQuery = clone $query;
+        $totalItemCount = $cloneQuery->groupBy('id')->count();
+        $dataProvider->setTotalCount((int)$totalItemCount);
 
 
 		return $dataProvider;
