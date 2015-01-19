@@ -292,6 +292,8 @@ class Attack extends \backend\components\BackModel
 		$dataProvider = new ActiveDataProvider([
 			'query' => $query,
 		]);
+        $totalItemCount = (new Query())->from(static::tableName())->groupBy('id')->count();
+        $dataProvider->setTotalCount((int)$totalItemCount);
         $query->joinWith(
             ['categoryValueToAttack.attackValue' ]);
 
