@@ -91,6 +91,19 @@ class ObjectAttacksWidget extends Widget
 			];
 		}
 
+        $cols[] = [
+            'attribute' => 'start_value',
+            'format' => 'raw',
+            'value' => function ($data, $key, $index) use ($object){
+                    return \yii\helpers\Html::textInput(
+                        \yii\helpers\Html::getInputName($object, 'attacks').'['.$index.'][start_value]',
+                        $data->start_value,
+                        [
+                            'class' => 'form-control'
+                        ]
+                    );
+                },
+        ];
 		$cols[] = [
 			'attribute' => 'cost',
 			'format' => 'raw',

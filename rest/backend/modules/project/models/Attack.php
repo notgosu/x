@@ -94,7 +94,7 @@ class Attack extends \backend\components\BackModel
             'name' => 'Назва',
             'object_type_id' => 'Тип об`єкту',
             'access_type_id' => 'Тип доступу',
-            'tech_parameter' => 'Технічний параметр',
+            'tech_parameter' => 'Початкове значення',
         ];
     }
 
@@ -185,16 +185,16 @@ class Attack extends \backend\components\BackModel
 					'type' => Form::INPUT_DROPDOWN_LIST,
 					'items' => ArrayHelper::map(ObjectType::find()->all(), 'id', 'name')
 				],
-                'access_type_id' => [
-                    'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => ArrayHelper::map(EmployeeAccessType::find()->all(), 'id', 'name')
-                ],
 				'additionalAttributes[]' => [
 					'type' => Form::INPUT_RAW,
 					'value' => function (self $data) {
 							return $data->getAdditionalAttrs();
 						}
 				],
+                'access_type_id' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => ArrayHelper::map(EmployeeAccessType::find()->all(), 'id', 'name')
+                ],
 				'tech_parameter' => [
 					'type' => Form::INPUT_TEXT,
 				],
@@ -273,12 +273,6 @@ class Attack extends \backend\components\BackModel
 
 
         return $attributes;
-    }
-
-
-    public function getAdditionalAttributes()
-    {
-        return $this->additionalAttributes;
     }
 
 	/**

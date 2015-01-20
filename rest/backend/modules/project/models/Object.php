@@ -145,6 +145,7 @@ class Object extends \backend\components\BackModel
 
 			if ($attackParam && $attack['is_active']){
                 $attackParam->cost = $attack['cost'];
+                $attackParam->start_value = $attack['start_value'];
                 $attackParam->is_active = $attack['is_active'];
 
 				if (!$attackParam->validate()){
@@ -152,7 +153,6 @@ class Object extends \backend\components\BackModel
 					$valid = false;
 				}
                 else{
-
                     $attackParam->save(false);
                 }
 			}
@@ -279,6 +279,7 @@ class Object extends \backend\components\BackModel
 			$model->attack_id = $attack['attack_id'];
 			$model->cost = $attack['cost'];
 			$model->is_active = $attack['is_active'];
+			$model->start_value = $attack['start_value'];
 			$model->object_id = $this->id;
 
 			$model->save(false);
@@ -422,7 +423,7 @@ class Object extends \backend\components\BackModel
             if ($employeeModel){
                 //Параметры атак, которые могут выполнить сотрудники
                 $attacksParams = (new Query())
-                    ->select('attack_id, cost')
+                    ->select('attack_id, cost, start_value')
                     ->from(ObjectAttackParams::tableName())
                     ->leftJoin(Attack::tableName(), 'attack_id=attack.id')
                     ->where('object_id=:oid', [':oid' => $this->id])
@@ -442,7 +443,9 @@ class Object extends \backend\components\BackModel
 
                     if ($attackModel){
                         //технічний коефіціент атаки
-                        $kT = $attackModel['tech_parameter'];
+                        $kT = $attackParam['start_value'] > 0
+                            ? $attackParam['start_value']
+                            : $attackModel['tech_parameter'];
                         //витрата на атаку
                         $D = $attackParam['cost'];
                         //для конкретного співробітника можливість залучення додаткових ресурсів

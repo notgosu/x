@@ -10,6 +10,7 @@ use Yii;
  * @property integer $id
  * @property integer $attack_id
  * @property integer $cost
+ * @property float $start_value
  * @property integer $is_active
  *
  * @property Attack $attack
@@ -30,7 +31,7 @@ class ObjectAttackParams extends \backend\components\BackModel
     public function rules()
     {
         return [
-            [['attack_id', 'cost', 'is_active'], 'required'],
+            [['attack_id', 'start_value', 'cost', 'is_active'], 'required'],
             [['attack_id', 'cost', 'is_active'], 'integer'],
 	        ['cost', 'compare', 'compareValue' => 0, 'operator' => '>'],
         ];
@@ -46,6 +47,7 @@ class ObjectAttackParams extends \backend\components\BackModel
             'attack_id' => 'Атака',
             'cost' => 'Вартість',
             'is_active' => 'Статус',
+            'start_value' => 'Початкове значення'
         ];
     }
 
