@@ -6,6 +6,7 @@ use backend\components\BackModel;
 use kartik\builder\Form;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\validators\EmailValidator;
@@ -93,6 +94,17 @@ class Company extends BackModel
                 $value->attribute_id = $attrId;
                 $value->save(false);
             }
+            else{
+                $categoryName = (new Query())
+                    ->select('name')
+                    ->from(CompanyAttributeCategory::tableName())
+                    ->where('id = :id', [':id' => $categoryId])
+                    ->one();
+
+                if ($categoryName) {
+                    $this->addError($this->additionalAttributes[$categoryId], 'Необхiдно заповнити '.$categoryName['name']);
+                }
+            }
 		}
 	}
 
@@ -136,7 +148,8 @@ class Company extends BackModel
 	        ['comment', 'filter', 'filter' => 'strip_tags'],
 	        ['phones', 'checkPhones'],
 	        ['emails', 'checkEmails'],
-	        [['messengers', 'additionalAttributes', 'comment', 'site', 'address', 'juristic_address', 'bank_requisites'], 'safe'],
+            ['additionalAttributes', 'checkAdditional'],
+	        [['messengers', 'comment', 'site', 'address', 'juristic_address', 'bank_requisites'], 'safe'],
             [['name', 'site', 'address', 'juristic_address', 'bank_requisites'], 'string', 'max' => 255],
 	        [['id', 'name', 'critical_info_price', 'market_info_price'],'safe', 'on' => 'search']
         ];
@@ -163,6 +176,26 @@ class Company extends BackModel
 
 		return $dataProvider;
 	}
+
+    public function checkAdditional()
+    {
+        foreach ($this->additionalAttributes as $categoryId => $attrId) {
+            if ($attrId == '') {
+                $categoryName = (new Query())
+                    ->select('name')
+                    ->from(CompanyAttributeCategory::tableName())
+                    ->where('id = :id', [':id' => $categoryId])
+                    ->one();
+
+                if ($categoryName) {
+                    $this->addError(
+                        'additionalAttributes['.$categoryId.']',
+                        'Необхiдно заповнити "' . $categoryName['name'].'"'
+                    );
+                }
+            }
+        }
+    }
 
 	/**
 	 * @return bool
@@ -447,6 +480,9 @@ class Company extends BackModel
 		$values = '';
 		foreach ($categories as $cat){
 			if ($cat->getCompanyAttributes()->count()){
+                $hasError = $this->hasErrors('additionalAttributes['.$cat->id.']');
+                $hasError = $hasError ? $this->getFirstError('additionalAttributes['.$cat->id.']') : false;
+
 				$values .= Html::label($cat->name, 'additionalAttributes['.$cat->id.']');
 				$values .= Html::activeDropDownList(
 					$this,
@@ -455,9 +491,9 @@ class Company extends BackModel
                         ['' => 'Оберiть'],
                         ArrayHelper::map($cat->getCompanyAttributes()->all(), 'id', 'name')
                     ),
-					['class' => 'form-control']
+					['class' => $hasError ? 'form-control input-has-error' : 'form-control']
 				);
-				$values .= Html::tag('div', '', ['class' => 'help-block']);
+				$values .= Html::tag('div', $hasError ? $hasError : '', ['class' => $hasError ? 'label-has-error help-block' :'help-block']);
 			}
 
 		}
