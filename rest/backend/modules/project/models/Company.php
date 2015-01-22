@@ -310,7 +310,17 @@ class Company extends BackModel
 				'critical_info_price',
 				'market_info_price',
 				[
-					'class' => \yii\grid\ActionColumn::className()
+					'class' => \yii\grid\ActionColumn::className(),
+                    'buttons' => [
+                        'delete' => function ($url, $model) {
+                                /** @var ActionColumn $column */
+                                return Html::a('<span class="glyphicon glyphicon-trash"></span>', $url, [
+                                        'title' => Yii::t('yii', 'Delete'),
+                                        'data-confirm' => Yii::t('yii', 'З видаленням компанії будуть видалені всі дані, які з нею звяані.'),
+                                        'data-method' => 'post',
+                                    ]);
+                                }
+                    ]
 				]
 			];
 	}
