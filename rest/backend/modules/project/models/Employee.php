@@ -89,7 +89,7 @@ class Employee extends BackModel
     public function rules()
     {
         return [
-            [['company_id', 'name', 'psycho_type_id', 'site', 'address', 'comment'], 'required'],
+            [['company_id', 'name', 'psycho_type_id'], 'required'],
             [['company_id', 'psycho_type_id', 'addition_resources'], 'integer'],
             [['motivation'], 'number'],
             [['comment'], 'string'],
@@ -98,7 +98,7 @@ class Employee extends BackModel
 	        ['emails', 'checkEmails'],
             ['motivation', 'default', 'value' => 0.0],
             ['addition_resources', 'default', 'value' => 0],
-            [['post', 'addition_resources', 'messengers'], 'safe'],
+            [['post', 'addition_resources', 'messengers', 'site', 'address', 'comment'], 'safe'],
             [['post', 'site', 'address'], 'string', 'max' => 255],
 	        [['id', 'name', 'company_id', 'post', 'psycho_type_id', 'motivation'], 'safe', 'on' => 'search']
         ];
