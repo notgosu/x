@@ -19,6 +19,7 @@ use yii\helpers\VarDumper;
  * @property string $name
  * @property integer $object_type_id
  * @property integer $access_type_id
+ * @property integer $group_id
  * @property string $tech_parameter
  *
  * @property ObjectType $objectType
@@ -75,12 +76,12 @@ class Attack extends \backend\components\BackModel
     public function rules()
     {
         return [
-            [['name', 'object_type_id', 'tech_parameter'], 'required'],
-            [['object_type_id', 'access_type_id'], 'integer'],
+            [['name', 'object_type_id', 'group_id', 'tech_parameter'], 'required'],
+            [['object_type_id', 'access_type_id', 'group_id'], 'integer'],
             [['tech_parameter'], 'number'],
             [['name'], 'string', 'max' => 255],
 	        ['additionalAttributes', 'safe'],
-	        [['id', 'name', 'object_type_id', 'tech_parameter'], 'safe', 'on' => 'search']
+	        [['id', 'group_id', 'name', 'object_type_id', 'tech_parameter'], 'safe', 'on' => 'search']
         ];
     }
 
@@ -95,6 +96,7 @@ class Attack extends \backend\components\BackModel
             'object_type_id' => 'Тип об`єкту',
             'access_type_id' => 'Тип доступу',
             'tech_parameter' => 'Початкове значення',
+            'group_id' => 'Категорiя'
         ];
     }
 
@@ -117,6 +119,14 @@ class Attack extends \backend\components\BackModel
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getGroup()
+    {
+        return $this->hasOne(AttackGroup::className(), ['id' => 'group_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getCategoryValueToAttack()
     {
         return $this->hasMany(AttackCategoryValueToAttack::className(), ['attack_id' => 'id']);
@@ -132,7 +142,13 @@ class Attack extends \backend\components\BackModel
 
         $indexAttributtes = [
             'id',
-            'name',
+            [
+                'attribute' => 'group_id',
+                'filter' => ArrayHelper::map(AttackGroup::find()->all(), 'id', 'label'),
+                'value' => function (self $data) {
+                        return $data->group->label;
+                    }
+            ],
             [
                 'attribute' => 'object_type_id',
                 'filter' => ArrayHelper::map(ObjectType::find()->all(), 'id', 'name'),
@@ -140,17 +156,18 @@ class Attack extends \backend\components\BackModel
                         return $data->getObjectType()->one()->name;
                     }
             ],
-            [
+            ];
+
+
+            $indexAttributtes = ArrayHelper::merge($indexAttributtes, static::getAdditionalAttrsForIndex());
+
+            $indexAttributtes[] = [
                 'attribute' => 'access_type_id',
                 'filter' => ArrayHelper::map(EmployeeAccessType::find()->all(), 'id', 'name'),
                 'value' => function (self $data) {
                         return $data->accessType->name;
                     }
-            ]];
-
-
-            $indexAttributtes = ArrayHelper::merge($indexAttributtes, static::getAdditionalAttrsForIndex());
-
+            ];
             $indexAttributtes[] = 'tech_parameter';
             $indexAttributtes[] = [
                 'class' => \yii\grid\ActionColumn::className()
@@ -178,8 +195,9 @@ class Attack extends \backend\components\BackModel
 	{
 		return
 			[
-				'name' => [
-					'type' => Form::INPUT_TEXT,
+				'group_id' => [
+					'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => ArrayHelper::map(AttackGroup::find()->all(), 'id', 'label')
 				],
 				'object_type_id' => [
 					'type' => Form::INPUT_DROPDOWN_LIST,
@@ -332,6 +350,7 @@ class Attack extends \backend\components\BackModel
 		$query->andFilterWhere(['object_type_id' => $this->object_type_id]);
 		$query->andFilterWhere(['like', static::tableName().'.name', $this->name]);
 		$query->andFilterWhere(['access_type_id' => $this->access_type_id]);
+		$query->andFilterWhere(['group_id' => $this->group_id]);
 		$query->andFilterWhere(['like', 'tech_parameter', $this->tech_parameter]);
 
 
@@ -381,4 +400,6 @@ class Attack extends \backend\components\BackModel
 
         return $result;
     }
+
+
 }

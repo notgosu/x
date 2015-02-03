@@ -12,7 +12,8 @@ use yii\helpers\Html;
 
 
 <div class="panel-body">
-	<?php echo Html::errorSummary(
+	<?php
+    echo Html::errorSummary(
 		$model,
 		[
 			'class' => 'alert alert-danger'
@@ -45,5 +46,5 @@ use yii\helpers\Html;
 	</div>
 	<?php
 	ActiveForm::end();
-	?>
+    ?>
 </div>

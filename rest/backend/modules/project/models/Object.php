@@ -127,39 +127,58 @@ class Object extends \backend\components\BackModel
 	}
 
 	public function validateAttacks(){
-		$i = 0;
-		$valid = true;
-		foreach ($this->attacks as $attack){
-			if (!$this->isNewRecord){
-				$attackParam = ObjectAttackParams::find()
-					->where('attack_id=:aid', [':aid' => $attack['attack_id']])
-					->andWhere('object_id=:oid', [':oid' => $this->id])
-					->one();
-			}
-			else{
-				$attackParam = ObjectAttackParams::find()
-					->where('attack_id=:aid', [':aid' => $attack['attack_id']])
-					->andWhere('temp_sign=:ts', [':ts' => $this->tempSign])
-					->one();
-			}
+        $valid = true;
 
-			if ($attackParam && $attack['is_active']){
-                $attackParam->cost = $attack['cost'];
-                $attackParam->start_value = $attack['start_value'];
-                $attackParam->is_active = $attack['is_active'];
+        if (isset($this->attacks['attack_id']))
+        {
+            $attackCount = count($this->attacks['attack_id']);
 
-				if (!$attackParam->validate()){
-					$this->addError('attacks['.$i.']', 'Aтака '.$attackParam->getAttack()->one()->name.': '.join(', ', $attackParam->getFirstErrors()));
-					$valid = false;
-				}
-                else{
-                    $attackParam->save(false);
+            for ($i = 0; $i < $attackCount; $i++){
+                if (!$this->isNewRecord){
+                    $attackParam = ObjectAttackParams::find()
+                        ->where('attack_id=:aid', [':aid' => $this->attacks['attack_id'][$i]])
+                        ->andWhere('object_id=:oid', [':oid' => $this->id])
+                        ->one();
                 }
-			}
+                else{
+                    $attackParam = ObjectAttackParams::find()
+                        ->where('attack_id=:aid', [':aid' => $this->attacks['attack_id'][$i]])
+                        ->andWhere('temp_sign=:ts', [':ts' => $this->tempSign])
+                        ->one();
+                }
 
-			$i++;
-		}
+                if ($attackParam){
+                    $attackParam->cost = $this->attacks['cost'][$i];
+                    $attackParam->start_value = $this->attacks['start_value'][$i];
+                    $attackParam->is_active = 0;
 
+                    $attackParamIsActive = $i > 0
+                        ? next($this->attacks['is_active'])
+                        : current($this->attacks['is_active']);
+
+                    if ($attackParamIsActive !== false) {
+                        $attackParam->is_active = $attackParamIsActive;
+
+                        if ($attackParam->is_active && !$attackParam->validate()){
+                            $this->addError(
+                                'attacks['.$i.']',
+                                'Aтака '.$attackParam->attack->name.' з категорiї "'.
+                                $attackParam->attack->group->label.'": '.join(', ', $attackParam->getFirstErrors()));
+                            $valid = false;
+                        } else {
+                            $attackParam->save(false);
+                        }
+                    }
+
+                    if ($i == ($attackCount - 1)) {
+                        reset($this->attacks['is_active']);
+                    }
+                }
+
+
+            }
+
+        }
 
 		return $valid;
 	}
@@ -252,7 +271,9 @@ class Object extends \backend\components\BackModel
 		parent::afterSave($insert, $changedAttributes);
 
 		$this->updateEmployeeParams();
-		$this->updateAttackParams();
+        if (isset($this->attacks['attack_id'])) {
+            $this->updateAttackParams();
+        }
 
 		return true;
 	}
@@ -274,12 +295,20 @@ class Object extends \backend\components\BackModel
 	public function updateAttackParams(){
 		ObjectAttackParams::deleteAll('object_id=:oid OR temp_sign IS NOT NULL', [':oid' => $this->id]);
 
-		foreach ($this->attacks as $attack){
+        echo $attackCount = count($this->attacks['attack_id']);
+		for ($i = 0; $i < $attackCount; $i++){
 			$model = new ObjectAttackParams();
-			$model->attack_id = $attack['attack_id'];
-			$model->cost = $attack['cost'];
-			$model->is_active = $attack['is_active'];
-			$model->start_value = $attack['start_value'];
+			$model->attack_id = $this->attacks['attack_id'][$i];
+			$model->cost = $this->attacks['cost'][$i];
+
+            $attackParamIsActive = $i > 0
+                ? next($this->attacks['is_active'])
+                : current($this->attacks['is_active']);
+
+            $model->is_active = $attackParamIsActive !== false
+                ? $attackParamIsActive
+                : 0;
+			$model->start_value = $this->attacks['start_value'][$i];
 			$model->object_id = $this->id;
 
 			$model->save(false);

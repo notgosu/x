@@ -64,22 +64,26 @@ AppAsset::register($this);
 				'label' => 'Атаки',
 				'items' => [
 					['label' => 'Атаки', 'url' => ['/project/attack/index']],
-					['label' => 'Категорії атак', 'url' => ['/project/attack-category/index']],
-					['label' => 'Значення категорій атак', 'url' => ['/project/attack-category-value/index']],
+					['label' => 'Категорiї атак', 'url' => ['/project/attack-group/index']],
+                    ['label' => 'Параметри атак', 'items' => [
+                        ['label' => 'Параметри атак', 'url' => ['/project/attack-category/index']],
+                        ['label' => 'Значення параметрiв атак', 'url' => ['/project/attack-category-value/index']],
+                    ]],
+
 				]
 			],
   			['label' => 'Користувач', 'url' => ['/user/default/index']],
 
 		];
 	if (Yii::$app->user->isGuest) {
-		echo Nav::widget(
+		echo \kartik\nav\NavX::widget(
 			[
 				'options' => ['class' => 'navbar-nav navbar-right'],
 				'items' => [['label' => 'Login', 'url' => ['/site/login']]]
 			]
 		);
 	} else {
-		echo Nav::widget(
+		echo \kartik\nav\NavX::widget(
 			[
 				'options' => ['class' => 'navbar-nav navbar-right'],
 				'items' => [
@@ -98,7 +102,7 @@ AppAsset::register($this);
 			]
 		);
 	}
-	echo Nav::widget(
+	echo \kartik\nav\NavX::widget(
 		[
 			'activateParents' => true,
 			'options' => ['class' => 'navbar-nav'],

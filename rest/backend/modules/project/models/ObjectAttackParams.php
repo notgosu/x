@@ -3,6 +3,8 @@
 namespace backend\modules\project\models;
 
 use Yii;
+use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
 
 /**
  * This is the model class for table "object_attack_params".
@@ -92,4 +94,95 @@ class ObjectAttackParams extends \backend\components\BackModel
 			}
 		}
 	}
+
+    /**
+     * @return array
+     */
+    public static function getAttackColsForGrid()
+    {
+        $object = new Object();
+
+        $cols[] = [
+            'attribute' => 'attack_id',
+            'format' => 'raw',
+            'value' => function (self $data, $key, $index) use ($object){
+                    $return = Html::hiddenInput(
+                        Html::getInputName($object, 'attacks').'[attack_id][]', $data->attack_id);
+                    $return .= $data->attack->name;
+                    return $return;
+                },
+        ];
+
+        $categories = AttackCategory::find()->orderBy('position')->all();
+        $catArr = [];
+        foreach ($categories as $cat) {
+            if ($cat->getAttackCategoryValues()->count()) {
+                $catArr[$cat->id]['label'] = $cat->name;
+                $catArr[$cat->id]['values'] = ArrayHelper::map($cat->getAttackCategoryValues()->all(), 'id', 'name');
+            }
+        }
+
+        foreach ($catArr as $catId => $cA) {
+            $cols[] = [
+                'attribute' => $cA['label'],
+                'format' => 'raw',
+                'value' => function (\backend\modules\project\models\ObjectAttackParams $data, $key, $index) use (
+                        $object,
+                        $catId,
+                        $cA
+                    ) {
+                        $addAtts = $data->attack->additionalAttributes;
+                        return isset($addAtts[$catId])
+                            ? $cA['values'][$addAtts[$catId]]
+                            : null;
+                    },
+            ];
+        }
+
+        $cols[] = [
+            'attribute' => 'start_value',
+            'format' => 'raw',
+            'value' => function ($data, $key, $index) use ($object) {
+                    return Html::textInput(
+                        Html::getInputName($object, 'attacks') . '[start_value][]',
+                        $data->start_value,
+                        [
+                            'class' => 'form-control'
+                        ]
+                    );
+                },
+        ];
+        $cols[] = [
+            'attribute' => 'cost',
+            'format' => 'raw',
+            'value' => function ($data, $key, $index) use ($object) {
+                    return Html::textInput(
+                        Html::getInputName($object, 'attacks') . '[cost][]',
+                        $data->cost,
+                        [
+                            'class' => 'form-control'
+                        ]
+                    );
+                },
+        ];
+        $cols[] = [
+            'attribute' => 'is_active',
+            'format' => 'raw',
+            'value' => function ($data, $key, $index) use ($object) {
+                    $inputName = Html::getInputName($object, 'attacks') . '[is_active]['.$data->id. ']';
+                    $inputValueInPost = isset($_POST['Object']['attacks']['is_active'][$data->id])
+                        ? $_POST['Object']['attacks']['is_active'][$data->id]
+                        : false;
+                    return Html::checkbox(
+                        $inputName,
+                        $inputValueInPost ? true : $data->is_active,
+                        [
+                            'uncheck' => 0,
+                            'label' => 'Активний',
+                        ]
+                    );
+                }
+        ];
+        return $cols;
+    }
 }

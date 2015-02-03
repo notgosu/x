@@ -197,6 +197,7 @@ class Employee extends BackModel
 		$query->andFilterWhere(['id' => $this->id]);
 		$query->andFilterWhere(['company_id' => $this->company_id]);
 		$query->andFilterWhere(['psycho_type_id' => $this->psycho_type_id]);
+		$query->andFilterWhere(['addition_resources' => $this->addition_resources]);
 		$query->andFilterWhere(['like', 'name', $this->name]);
 		$query->andFilterWhere(['like', 'post', $this->post]);
 		$query->andFilterWhere(['like', 'motivation', $this->motivation]);
@@ -290,7 +291,6 @@ class Employee extends BackModel
 							return $data->getCompany()->one()->name;
 						}
 				],
-				'post',
 				[
 					'attribute' => 'psycho_type_id',
 					'filter' => ArrayHelper::map(EmployeePsychoType::find()->all(), 'id', 'name'),
@@ -298,6 +298,7 @@ class Employee extends BackModel
 							return $data->getPsychoType()->one()->name;
 						}
 				],
+                'addition_resources',
 				'motivation',
 
 				[
